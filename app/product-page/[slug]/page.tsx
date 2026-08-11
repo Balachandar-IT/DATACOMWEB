@@ -16,7 +16,7 @@ type ProductPageProps = {
 };
 
 const fallbackImage =
-  "https://static.wixstatic.com/media/1470f5_5f68f9571c514b3586a0a7999a12b9b9~mv2.png/v1/fit/w_900,h_900,q_90/file.png";
+  "/assets/vendor/file-1e8c79e7e15f.png";
 
 export default function GenericProductPage({ params, searchParams }: ProductPageProps) {
   const product = params?.slug ? shopCatalogBySlug[params.slug] : undefined;

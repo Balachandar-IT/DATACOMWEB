@@ -6,111 +6,125 @@ type ExplorePost = {
   title: string;
 };
 
-const wixImage = (name: string) =>
-  `https://static.wixstatic.com/media/${name}/v1/fill/w_328,h_328,fp_0.50_0.50,q_95,enc_avif,quality_auto/${name}`;
+const exploreImages: Record<string, string> = {
+  "ab07e4_f480168a27de4e3b9823b57002e67fc7~mv2.png": "/assets/vendor/explore/ab07e4-f480168a27de4e3b9823b57002e67fc7-mv2-6aadc015a9.avif",
+  "31f7f6_58df12c653d646c898dd3b23cd1ba8c0~mv2.png": "/assets/vendor/explore/31f7f6-58df12c653d646c898dd3b23cd1ba8c0-mv2-1353815558.avif",
+  "31f7f6_5800df6609d143c2ae10c3a50db66522~mv2.png": "/assets/vendor/explore/31f7f6-5800df6609d143c2ae10c3a50db66522-mv2-2cd1c7f0d3.avif",
+  "31f7f6_52a5cd43f47d4361932c60e90e960970~mv2.png": "/assets/vendor/explore/31f7f6-52a5cd43f47d4361932c60e90e960970-mv2-1fb22c9f88.avif",
+  "31f7f6_4543126de38841b8a4e633b321f900f1~mv2.jpg": "/assets/vendor/explore/31f7f6-4543126de38841b8a4e633b321f900f1-mv2-daa36182d7.avif",
+  "31f7f6_6b4ed78db5794514a1abfbc004cd4278~mv2.jpg": "/assets/vendor/explore/31f7f6-6b4ed78db5794514a1abfbc004cd4278-mv2-d3026b55d4.avif",
+  "31f7f6_b29c941a9f0543708548a84daefcca50~mv2.jpeg": "/assets/vendor/explore/31f7f6-b29c941a9f0543708548a84daefcca50-mv2-1223266c61.avif",
+  "31f7f6_99bab4d564544c539adff203a060ce63~mv2.jpg": "/assets/vendor/explore/31f7f6-99bab4d564544c539adff203a060ce63-mv2-bd2c34815e.avif",
+  "31f7f6_a020029391404ceea34b40d0808be0d9~mv2.png": "/assets/vendor/explore/31f7f6-a020029391404ceea34b40d0808be0d9-mv2-5ebd422d93.avif",
+  "d6f209_1850c500e5954076be34f18b3dd3bd7b~mv2.png": "/assets/vendor/explore/d6f209-1850c500e5954076be34f18b3dd3bd7b-mv2-02d3ea6339.avif",
+  "d6f209_576d4b4c803348ca90d85693eb258e4a~mv2.png": "/assets/vendor/explore/d6f209-576d4b4c803348ca90d85693eb258e4a-mv2-11d2e088ec.avif",
+  "d6f209_340765e6cef14deabc77ff7286935f01~mv2.png": "/assets/vendor/explore/d6f209-340765e6cef14deabc77ff7286935f01-mv2-6ac311b54e.avif",
+  "d6f209_86689a63cc414f0294968eccbe38d699~mv2.png": "/assets/vendor/explore/d6f209-86689a63cc414f0294968eccbe38d699-mv2-956d81785b.avif",
+  "c422759e720247e6baa7758c3d611959.jpg": "/assets/vendor/explore/c422759e720247e6baa7758c3d611959-3fc2abf323.avif",
+  "ab07e4_8ca4fd378a3e4d6b982c6ba23535b005~mv2.jpg": "/assets/vendor/explore/ab07e4-8ca4fd378a3e4d6b982c6ba23535b005-mv2-419e62751f.avif",
+  "ab07e4_7d7995e8fcf042fc8195e599387a2582~mv2.jpg": "/assets/vendor/explore/ab07e4-7d7995e8fcf042fc8195e599387a2582-mv2-d7f70bb650.avif",
+  "ab07e4_da2710b6d9a441498a943581b3e0883c~mv2.jpg": "/assets/vendor/explore/ab07e4-da2710b6d9a441498a943581b3e0883c-mv2-efcb2d29a9.avif",
+  "11062b_1df7f63791924c3285ea7dd7096bc576~mv2.jpg": "/assets/vendor/explore/11062b-1df7f63791924c3285ea7dd7096bc576-mv2-eb83fe4bc4.avif",
+  "ab07e4_432593b0071a45dcaf85a86379e6ed26~mv2.jpg": "/assets/vendor/explore/ab07e4-432593b0071a45dcaf85a86379e6ed26-mv2-c2b15149dd.avif",
+  "ab07e4_4979868db51949d693d2cb291887125a~mv2.jpg": "/assets/vendor/explore/ab07e4-4979868db51949d693d2cb291887125a-mv2-bd6d4b5442.avif",
+  "ab07e4_27123123ffa14078895bcaeee2e5f5a5~mv2.webp": "/assets/vendor/explore/ab07e4-27123123ffa14078895bcaeee2e5f5a5-mv2-770d5401e6.avif",
+};
 
-const wixJpg = (name: string) =>
-  `https://static.wixstatic.com/media/${name}/v1/fill/w_328,h_328,fp_0.50_0.50,q_90,enc_avif,quality_auto/${name}`;
-
-const wixJpeg = (name: string) =>
-  `https://static.wixstatic.com/media/${name}/v1/fill/w_328,h_328,fp_0.50_0.50,q_90,enc_avif,quality_auto/${name}`;
-
-const wixWebp = (name: string) =>
-  `https://static.wixstatic.com/media/${name}/v1/fill/w_328,h_328,al_c,q_90,enc_avif,quality_auto/${name}`;
+const localImage = (name: string) => exploreImages[name];
 
 const pageOnePosts: ExplorePost[] = [
   {
     category: "Datacom Service",
-    image: wixImage("ab07e4_f480168a27de4e3b9823b57002e67fc7~mv2.png"),
+    image: localImage("ab07e4_f480168a27de4e3b9823b57002e67fc7~mv2.png"),
     title: "The Importance of Effective Cable Management in Modern Network Performance",
   },
   {
-    image: wixImage("31f7f6_58df12c653d646c898dd3b23cd1ba8c0~mv2.png"),
+    image: localImage("31f7f6_58df12c653d646c898dd3b23cd1ba8c0~mv2.png"),
     title: "UPS Power Supply Selection for IT Infrastructure",
   },
   {
-    image: wixImage("31f7f6_5800df6609d143c2ae10c3a50db66522~mv2.png"),
+    image: localImage("31f7f6_5800df6609d143c2ae10c3a50db66522~mv2.png"),
     title: "How to Choose a Server Rack Supplier in Singapore",
   },
   {
-    image: wixImage("31f7f6_52a5cd43f47d4361932c60e90e960970~mv2.png"),
+    image: localImage("31f7f6_52a5cd43f47d4361932c60e90e960970~mv2.png"),
     title: "Network Server Rack Types and Configurations: Practical Guide for Business IT",
   },
   {
-    image: wixJpg("31f7f6_4543126de38841b8a4e633b321f900f1~mv2.jpg"),
+    image: localImage("31f7f6_4543126de38841b8a4e633b321f900f1~mv2.jpg"),
     title: "Network Attached Storage (NAS) Guide for Singapore",
   },
   {
-    image: wixJpg("31f7f6_6b4ed78db5794514a1abfbc004cd4278~mv2.jpg"),
+    image: localImage("31f7f6_6b4ed78db5794514a1abfbc004cd4278~mv2.jpg"),
     title: "NAS Storage Explained for Business Use",
   },
   {
-    image: wixJpeg("31f7f6_b29c941a9f0543708548a84daefcca50~mv2.jpeg"),
+    image: localImage("31f7f6_b29c941a9f0543708548a84daefcca50~mv2.jpeg"),
     title: "IT Support & Installation Services In Singapore",
   },
   {
-    image: wixJpg("31f7f6_99bab4d564544c539adff203a060ce63~mv2.jpg"),
+    image: localImage("31f7f6_99bab4d564544c539adff203a060ce63~mv2.jpg"),
     title: "HP Business Computers & Workstations Guide for Singapore",
   },
   {
-    image: wixImage("31f7f6_a020029391404ceea34b40d0808be0d9~mv2.png"),
+    image: localImage("31f7f6_a020029391404ceea34b40d0808be0d9~mv2.png"),
     title: "Data Center Storage Solutions for Singapore Businesses",
   },
   {
-    image: wixImage("d6f209_1850c500e5954076be34f18b3dd3bd7b~mv2.png"),
+    image: localImage("d6f209_1850c500e5954076be34f18b3dd3bd7b~mv2.png"),
     title: "Choosing the Right Dell Laptop Singapore Partner for Your Business: A 2026 Guide",
   },
   {
-    image: wixImage("d6f209_576d4b4c803348ca90d85693eb258e4a~mv2.png"),
+    image: localImage("d6f209_576d4b4c803348ca90d85693eb258e4a~mv2.png"),
     title: "Server Rack Singapore: Complete Guide to Buying Enterprise Server Racks",
   },
   {
-    image: wixImage("d6f209_340765e6cef14deabc77ff7286935f01~mv2.png"),
+    image: localImage("d6f209_340765e6cef14deabc77ff7286935f01~mv2.png"),
     title: "Synology NAS Singapore: A 2026 Buyer's Guide",
   },
 ];
 
 const pageTwoPosts: ExplorePost[] = [
   {
-    image: wixImage("d6f209_86689a63cc414f0294968eccbe38d699~mv2.png"),
+    image: localImage("d6f209_86689a63cc414f0294968eccbe38d699~mv2.png"),
     title: "APC UPS Singapore: Complete Guide to Reliable Power Protection Solutions",
   },
   {
     category: "Data Center Products Solutions",
-    image: wixJpg("c422759e720247e6baa7758c3d611959.jpg"),
+    image: localImage("c422759e720247e6baa7758c3d611959.jpg"),
     title: "Flexible Storage Management: Demystifying Advanced Storage Technologies",
   },
   {
     category: "Server Security",
-    image: wixJpg("ab07e4_8ca4fd378a3e4d6b982c6ba23535b005~mv2.jpg"),
+    image: localImage("ab07e4_8ca4fd378a3e4d6b982c6ba23535b005~mv2.jpg"),
     title: "Optimising Server Room Layouts: The Art of Efficient Server Rack Placement",
   },
   {
     category: "Data Center Products Solutions",
-    image: wixJpg("ab07e4_7d7995e8fcf042fc8195e599387a2582~mv2.jpg"),
+    image: localImage("ab07e4_7d7995e8fcf042fc8195e599387a2582~mv2.jpg"),
     title: "A Guide to Choosing the Right UPS for Your Needs",
   },
   {
     category: "Data Center Products Solutions",
-    image: wixJpg("ab07e4_da2710b6d9a441498a943581b3e0883c~mv2.jpg"),
+    image: localImage("ab07e4_da2710b6d9a441498a943581b3e0883c~mv2.jpg"),
     title: "A Guide to Data Backup Strategies",
   },
   {
     category: "Data Center Products Solutions",
-    image: wixJpg("11062b_1df7f63791924c3285ea7dd7096bc576~mv2.jpg"),
+    image: localImage("11062b_1df7f63791924c3285ea7dd7096bc576~mv2.jpg"),
     title: "The Importance of Server Security and How to Secure Your Server",
   },
   {
     category: "Business Products Solution",
-    image: wixJpg("ab07e4_432593b0071a45dcaf85a86379e6ed26~mv2.jpg"),
+    image: localImage("ab07e4_432593b0071a45dcaf85a86379e6ed26~mv2.jpg"),
     title: "What Is a UPS and Why do you need It for your Data Centre?",
   },
   {
-    image: wixJpg("ab07e4_4979868db51949d693d2cb291887125a~mv2.jpg"),
+    image: localImage("ab07e4_4979868db51949d693d2cb291887125a~mv2.jpg"),
     title: "6 Benefits of Using a Server Rack",
   },
   {
-    image: wixWebp("ab07e4_27123123ffa14078895bcaeee2e5f5a5~mv2.webp"),
+    image: localImage("ab07e4_27123123ffa14078895bcaeee2e5f5a5~mv2.webp"),
     title: "Everything You Need To Know About Choosing Storage Solutions For Your Data Center",
   },
 ];

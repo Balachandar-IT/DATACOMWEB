@@ -40,7 +40,7 @@ export default function CareersPage() {
               inquiries.
             </p>
             <img
-              src="https://static.wixstatic.com/media/1470f5_521b4d8c3f594ad092b445a054fb662e~mv2.jpg/v1/fill/w_1172,h_678,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/low-light-data-center-running-advanced-ai-models-neural-network-processes.jpg"
+              src="/assets/vendor/low-light-data-center-running-advanced-ai-models-neu-b08099cb58e5.avif"
               alt="Data center infrastructure"
             />
           </div>

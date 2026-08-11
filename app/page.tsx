@@ -63,27 +63,27 @@ const navHref = (item: string) =>
 
 const wix = {
   about:
-    "https://static.wixstatic.com/media/ab07e4_b09f97a0511445cfa5bfdce6091f83a7~mv2.png/v1/fill/w_367,h_497,al_c,lg_1,q_85,enc_avif,quality_auto/ab07e4_b09f97a0511445cfa5bfdce6091f83a7~mv2.png",
+    "/assets/vendor/ab07e4-b09f97a0511445cfa5bfdce6091f83a7-mv2-e8f0ac53a24a.avif",
   deal:
-    "https://static.wixstatic.com/media/ab07e4_45d24a67ee264887bd20431250a5c360~mv2.png/v1/fill/w_326,h_217,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Untitled%20design%20%2812%29.png",
+    "/assets/vendor/untitled-design-12-f5b9a3623391.avif",
   launch:
-    "https://static.wixstatic.com/media/1470f5_44b376d59cb84dbfb417495e0b71f67f~mv2.png/v1/fill/w_326,h_217,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/AI%20Workstation%20SG.png",
+    "/assets/vendor/ai-workstation-sg-a7f3eaefd35a.avif",
   business:
-    "https://static.wixstatic.com/media/ab07e4_9a7fd24729e24e778cc046c832802931~mv2.png/v1/fill/w_366,h_244,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Untitled%20design%20-%202023-04-24T152436_edited.png",
+    "/assets/vendor/untitled-design-2023-04-24t152436-edited-1b7f03d5342a.avif",
   dataCenter:
-    "https://static.wixstatic.com/media/ab07e4_2a1f40476a384ae2a2b163ab88dbef25~mv2.png/v1/fill/w_366,h_244,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/002.png",
+    "/assets/vendor/002-94d2de49cdb6.avif",
   nas:
-    "https://static.wixstatic.com/media/ab07e4_42ca0d0cf58e4516a3c575d85b42944d~mv2.png/v1/fill/w_166,h_166,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/heading%20%284%29.png",
+    "/assets/vendor/heading-4-4386bd928f59.avif",
   ups:
-    "https://static.wixstatic.com/media/ab07e4_af42fe0cc12d466aae9bf3efebecf2da~mv2.png/v1/fill/w_166,h_166,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/APC-UPS%20%2814%29.png",
+    "/assets/vendor/apc-ups-14-8853190381e1.avif",
   laptop:
-    "https://static.wixstatic.com/media/ab07e4_170a859bcaec4d13ad21ce783c1de2b5~mv2.png/v1/fill/w_166,h_166,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Untitled%20design%20%2838%29.png",
+    "/assets/vendor/untitled-design-38-53bd3844daf4.avif",
   qrush:
-    "https://static.wixstatic.com/media/ab07e4_15155fc5d7674bbeae01ac47dca44e9a~mv2.png/v1/fill/w_166,h_166,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Untitled%20design%20%2857%29.png",
+    "/assets/vendor/untitled-design-57-573292d3696b.avif",
   rack:
-    "https://static.wixstatic.com/media/d3f362_5528bc90663443979ef7d68faf01e694~mv2.png/v1/fill/w_166,h_166,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Perforated%206U.png",
+    "/assets/vendor/perforated-6u-a3bf2867908c.avif",
   cta:
-    "https://static.wixstatic.com/media/1470f5_bb1964b59bb14213a16356e5dd15d5ca~mv2.png/v1/crop/x_0,y_40,w_1019,h_244/fill/w_1172,h_287,al_c,lg_1,q_85,enc_avif,quality_auto/Section%20-%20Platform%20Highlight.png",
+    "/assets/vendor/section-platform-highlight-0f14656405a3.avif",
 };
 
 const dealCards = [
@@ -189,23 +189,23 @@ const houseBrands = [
 
 const whyItems = [
   [
-    "https://static.wixstatic.com/media/1470f5_cee3035399564d6f943dbfe50a0f11ae~mv2.png/v1/fill/w_64,h_64,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Group%209%20%283%29.png",
+    "/assets/vendor/group-9-3-c02583d79f3d.avif",
     "Years of IT infrastructure experience across industries.",
   ],
   [
-    "https://static.wixstatic.com/media/1470f5_545779eeda0548c79e046ebbbd42197a~mv2.png/v1/fill/w_64,h_64,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Group%208%20%284%29.png",
+    "/assets/vendor/group-8-4-7c39b47b6694.avif",
     "Tailored services for SMEs, enterprises, and government projects.",
   ],
   [
-    "https://static.wixstatic.com/media/1470f5_190dc023bb35401190849958157d5d09~mv2.png/v1/fill/w_64,h_64,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Group%206.png",
+    "/assets/vendor/group-6-3410c33d0482.avif",
     "Reliable and cost-effective solutions built by us.",
   ],
   [
-    "https://static.wixstatic.com/media/1470f5_08fa97e9c89a42a89d144f4a5ce617d3~mv2.png/v1/fill/w_64,h_64,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Group%205%20%282%29.png",
+    "/assets/vendor/group-5-2-d959f8fbb4cc.avif",
     "Installation, cabling, relocation, and SLA support handled by certified engineers.",
   ],
   [
-    "https://static.wixstatic.com/media/1470f5_9720af1cb9c34598bebf01d4e1495c8e~mv2.png/v1/fill/w_64,h_64,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Group%207%20%281%29.png",
+    "/assets/vendor/group-7-1-af6a8f5de370.avif",
     "Partnerships with HPE, Dell, Lenovo, Apple, Synology, APC, and more.",
   ],
 ];
@@ -227,17 +227,17 @@ const insights = [
   [
     "DATACOM SERVICE",
     "The Importance of Effective Cable Management in Modern Network Performance",
-    "https://static.wixstatic.com/media/ab07e4_f480168a27de4e3b9823b57002e67fc7~mv2.png/v1/fill/w_379,h_379,al_c,q_85,enc_avif,quality_auto/ab07e4_f480168a27de4e3b9823b57002e67fc7~mv2.png",
+    "/assets/vendor/ab07e4-f480168a27de4e3b9823b57002e67fc7-mv2-efe34ead4ab5.avif",
   ],
   [
     "DATA CENTER",
     "UPS Power Supply Selection for IT Infrastructure",
-    "https://static.wixstatic.com/media/31f7f6_58df12c653d646c898dd3b23cd1ba8c0~mv2.png/v1/fill/w_379,h_379,al_c,q_85,enc_avif,quality_auto/31f7f6_58df12c653d646c898dd3b23cd1ba8c0~mv2.png",
+    "/assets/vendor/31f7f6-58df12c653d646c898dd3b23cd1ba8c0-mv2-057d1aa3066a.avif",
   ],
   [
     "RACK GUIDE",
     "How to Choose a Server Rack Supplier in Singapore",
-    "https://static.wixstatic.com/media/31f7f6_5800df6609d143c2ae10c3a50db66522~mv2.png/v1/fill/w_379,h_379,al_c,q_85,enc_avif,quality_auto/31f7f6_5800df6609d143c2ae10c3a50db66522~mv2.png",
+    "/assets/vendor/31f7f6-5800df6609d143c2ae10c3a50db66522-mv2-b6c24e6e91d6.avif",
   ],
 ];
 

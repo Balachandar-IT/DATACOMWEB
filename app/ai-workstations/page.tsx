@@ -22,32 +22,32 @@ const gpuCards = [
   [
     "RTX PRO 6000 Blackwell",
     "RTX Pro 6000 delivers high-performance AI and rendering capabilities with 96GB memory for demanding workloads.",
-    "https://static.wixstatic.com/media/1470f5_5659abe1471a48759347a10e3fd7e2ad~mv2.png/v1/fill/w_301,h_271,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/rtx-pro-6000-blackwell-ai-workstation.png",
+    "/assets/vendor/rtx-pro-6000-blackwell-ai-workstation-513af3375949.avif",
   ],
   [
     "RTX 6000 Ada",
     "RTX 6000 Ada delivers powerful AI and rendering performance with 48GB memory for demanding workloads.",
-    "https://static.wixstatic.com/media/1470f5_d945eb98aaec4b91be5f7781f36ca239~mv2.png/v1/fill/w_301,h_271,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/RTX6000Ada-datacom.png",
+    "/assets/vendor/rtx6000ada-datacom-5523deaf4ce6.avif",
   ],
   [
     "RTX 5000 Ada",
     "Delivers strong AI, rendering, and compute performance with advanced cores and 32GB memory for professional workflows.",
-    "https://static.wixstatic.com/media/1470f5_0da89a8e191c4982858477b31fa7654e~mv2.png/v1/fill/w_301,h_271,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/rtx%205000%20ada.png",
+    "/assets/vendor/rtx-5000-ada-1ec4a36dff14.avif",
   ],
   [
     "L40S",
     "Data centre GPU optimized for AI training, inference, and high-performance computing workloads.",
-    "https://static.wixstatic.com/media/1470f5_9e842a0345ac40fba217e41c804e34ee~mv2.png/v1/fill/w_301,h_271,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/L40S.png",
+    "/assets/vendor/l40s-5cb2e1e24748.avif",
   ],
   [
     "H100",
     "Enterprise GPU built for AI and HPC, delivering massive speed improvements for training and large-scale workloads.",
-    "https://static.wixstatic.com/media/1470f5_dcbbdebe9b3d492b8fa11082cc44a106~mv2.png/v1/fill/w_301,h_271,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/H100.png",
+    "/assets/vendor/h100-6407ccb6f67d.avif",
   ],
   [
     "H200",
     "Advanced GPU with faster, larger memory, boosting generative AI, LLMs, and high-performance computing efficiency.",
-    "https://static.wixstatic.com/media/1470f5_cc8deb49f0b14a75b43d20b14a10b32f~mv2.png/v1/fill/w_301,h_271,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/H200.png",
+    "/assets/vendor/h200-9f6d3d5783a4.avif",
   ],
 ];
 
@@ -83,32 +83,32 @@ const solutionCards = [
   [
     "AI Workstation",
     "High-performance systems built for AI development and model training.",
-    "https://static.wixstatic.com/media/1470f5_2c308c7bf3d4414881f3cc6111e63e92~mv2.jpg/v1/fill/w_379,h_253,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/close-up-computer-screens-server-room-monitoring-artificial-intelligence.jpg",
+    "/assets/vendor/close-up-computer-screens-server-room-monitoring-art-a21eb447859a.avif",
   ],
   [
     "GPU Servers",
     "Powerful multi-GPU servers for large-scale AI workloads.",
-    "https://static.wixstatic.com/media/1470f5_aa4204037ae84409a87ba64dae79b0dd~mv2.jpg/v1/fill/w_379,h_253,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/mainframe-devices-racks-room-with-big-data-cyber-internet-content-neon-light-cloud-computi.jpg",
+    "/assets/vendor/mainframe-devices-racks-room-with-big-data-cyber-int-8c06388aac02.avif",
   ],
   [
     "HPC Clusters",
     "Scalable computing clusters for intensive data processing and simulations.",
-    "https://static.wixstatic.com/media/1470f5_b20d555192b3493dad8369713228606a~mv2.jpg/v1/fill/w_379,h_253,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/modern-data-center-providing-cloud-services-enabling-businesses-access-computing-resources.jpg",
+    "/assets/vendor/modern-data-center-providing-cloud-services-enabling-ea1c4d23fed5.avif",
   ],
   [
     "AI Storage Solutions",
     "High-speed storage designed for large datasets and AI workflows.",
-    "https://static.wixstatic.com/media/1470f5_0e5c04ef2a5c488faf51c6c64d791bf8~mv2.jpg/v1/fill/w_379,h_253,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/businessman-interacting-with-futuristic-graphics.jpg",
+    "/assets/vendor/businessman-interacting-with-futuristic-graphics-06eddd2d1266.avif",
   ],
   [
     "High-Speed Networking",
     "Fast and reliable connectivity for data transfer and system performance.",
-    "https://static.wixstatic.com/media/1470f5_bc695a6d093441cda8d5939f203de05d~mv2.jpg/v1/fill/w_379,h_253,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/5g-network-smart-city-background-technology.jpg",
+    "/assets/vendor/5g-network-smart-city-background-technology-0cf4af78bec7.avif",
   ],
   [
     "AI Infrastructure Deployment",
     "End-to-end setup and integration of complete AI environments.",
-    "https://static.wixstatic.com/media/1470f5_7f0883be3051466aa5d69d628ec4bb33~mv2.jpg/v1/fill/w_379,h_253,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/data-center-engineer-using-pc-adjusting-ai-model-parameters-enhance-accuracy-server-hub-wo.jpg",
+    "/assets/vendor/data-center-engineer-using-pc-adjusting-ai-model-par-228f35bfb5d2.avif",
   ],
 ];
 
@@ -118,7 +118,7 @@ const deploymentCards = [
     intro:
       "High-performance AI workstations designed for simulation, model training, and advanced research workloads.",
     icon:
-      "https://static.wixstatic.com/media/1470f5_30b681c2710840c5882ebc6d1677f4c0~mv2.png/v1/fill/w_65,h_65,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Ai%20icon%201.png",
+      "/assets/vendor/ai-icon-1-2f4eef54cc93.avif",
     points: [
       "Multi-GPU capable configurations",
       "High-memory system design for large datasets",
@@ -135,7 +135,7 @@ const deploymentCards = [
     intro:
       "Scalable GPU infrastructure designed for AI model training and parallel computing.",
     icon:
-      "https://static.wixstatic.com/media/1470f5_8c716fe378a84d228785b5d24fff526e~mv2.png/v1/fill/w_65,h_65,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Ai%20icon%202.png",
+      "/assets/vendor/ai-icon-2-2c101ba35ba7.avif",
     points: [
       "Multi-node GPU architecture",
       "High-speed networking for cluster communication",
@@ -151,7 +151,7 @@ const deploymentCards = [
     title: "AI Storage & Data Management",
     intro: "Reliable storage solutions built to support AI workloads and large datasets.",
     icon:
-      "https://static.wixstatic.com/media/1470f5_6ecff2b67cbf41358b31ae6acc146745~mv2.png/v1/fill/w_65,h_65,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Ai%20icon.png",
+      "/assets/vendor/ai-icon-b6553650825f.avif",
     points: [
       "High-capacity and high-throughput storage systems",
       "Optimized for AI data pipelines and backup",
@@ -168,23 +168,23 @@ const deploymentCards = [
 const whyItems = [
   [
     "Proven IT infrastructure experience across industries.",
-    "https://static.wixstatic.com/media/1470f5_cee3035399564d6f943dbfe50a0f11ae~mv2.png/v1/fill/w_64,h_64,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Group%209%20(3).png",
+    "/assets/vendor/group-9-3-c02583d79f3d.avif",
   ],
   [
     "Tailored services for SMEs, enterprises, and government projects.",
-    "https://static.wixstatic.com/media/1470f5_545779eeda0548c79e046ebbbd42197a~mv2.png/v1/fill/w_64,h_64,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Group%208%20(4).png",
+    "/assets/vendor/group-8-4-7c39b47b6694.avif",
   ],
   [
     "Reliable and cost-effective solutions built by us.",
-    "https://static.wixstatic.com/media/1470f5_190dc023bb35401190849958157d5d09~mv2.png/v1/fill/w_64,h_64,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Group%206.png",
+    "/assets/vendor/group-6-3410c33d0482.avif",
   ],
   [
     "Installation, cabling, relocation, and SLA support handled by certified engineers.",
-    "https://static.wixstatic.com/media/1470f5_08fa97e9c89a42a89d144f4a5ce617d3~mv2.png/v1/fill/w_64,h_64,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Group%205%20(2).png",
+    "/assets/vendor/group-5-2-d959f8fbb4cc.avif",
   ],
   [
     "Partnerships with HPE, Dell, Lenovo, Apple, Synology, APC, and more.",
-    "https://static.wixstatic.com/media/1470f5_9720af1cb9c34598bebf01d4e1495c8e~mv2.png/v1/fill/w_64,h_64,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Group%207%20(1).png",
+    "/assets/vendor/group-7-1-af6a8f5de370.avif",
   ],
 ];
 
@@ -232,10 +232,10 @@ export default function AiWorkstationsPage() {
           loop
           muted
           playsInline
-          poster="https://static.wixstatic.com/media/11062b_fc39bc30d1b04fa48aa1a5bcefaafe7ef000.jpg/v1/fill/w_1470,h_830,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/11062b_fc39bc30d1b04fa48aa1a5bcefaafe7ef000.jpg"
+          poster="/assets/vendor/11062b-fc39bc30d1b04fa48aa1a5bcefaafe7ef000-2de7c8f3cce1.avif"
         >
           <source
-            src="https://video.wixstatic.com/video/11062b_fc39bc30d1b04fa48aa1a5bcefaafe7e/1080p/mp4/file.mp4"
+            src="/assets/vendor/video/ai-workstation-bg.mp4"
             type="video/mp4"
           />
         </video>
@@ -271,7 +271,7 @@ export default function AiWorkstationsPage() {
           storage, and optimized Linux environments.
         </p>
         <img
-          src="https://static.wixstatic.com/media/1470f5_44b376d59cb84dbfb417495e0b71f67f~mv2.png/v1/fill/w_739,h_385,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/AI%20Workstation%20SG.png"
+          src="/assets/vendor/ai-workstation-sg-6fce6d7df9d2.avif"
           alt="NVIDIA AI workstation GPUs"
         />
       </section>
@@ -431,7 +431,7 @@ export default function AiWorkstationsPage() {
           </ul>
         </div>
         <img
-          src="https://static.wixstatic.com/media/1470f5_521b4d8c3f594ad092b445a054fb662e~mv2.jpg/v1/fill/w_628,h_361,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/low-light-data-center-running-advanced-ai-models-neural-network-processes.jpg"
+          src="/assets/vendor/low-light-data-center-running-advanced-ai-models-neu-6a6a71be2714.avif"
           alt="AI data centre infrastructure"
         />
       </section>

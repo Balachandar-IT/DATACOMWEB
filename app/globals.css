@@ -3234,7 +3234,7 @@ body {
 
 .upgrade-cta {
   background: #edf7ff;
-  background-image: url("https://static.wixstatic.com/media/1470f5_bb1964b59bb14213a16356e5dd15d5ca~mv2.png/v1/crop/x_0,y_40,w_1019,h_244/fill/w_1172,h_287,al_c,lg_1,q_85,enc_avif,quality_auto/Section%20-%20Platform%20Highlight.png");
+  background-image: url("/assets/vendor/section-platform-highlight-0f14656405a3.avif");
   background-position: center;
   background-size: cover;
   border-radius: 0;
@@ -5269,7 +5269,7 @@ section,
   align-items: center;
   background:
     linear-gradient(rgba(0, 12, 28, 0.12), rgba(0, 12, 28, 0.12)),
-    url("https://static.wixstatic.com/media/ab07e4_f480168a27de4e3b9823b57002e67fc7~mv2.png/v1/fill/w_1920,h_560,al_c,q_90,enc_avif,quality_auto/ab07e4_f480168a27de4e3b9823b57002e67fc7~mv2.png");
+    url("/assets/vendor/ab07e4-f480168a27de4e3b9823b57002e67fc7-mv2-4b7d91ea5bc9.avif");
   background-position: center 48%;
   background-size: cover;
   display: flex;
@@ -6648,7 +6648,7 @@ section,
 .ai-hero {
   align-items: center;
   background: #002a4e
-    url("https://static.wixstatic.com/media/11062b_fc39bc30d1b04fa48aa1a5bcefaafe7ef000.jpg/v1/fill/w_1470,h_830,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/11062b_fc39bc30d1b04fa48aa1a5bcefaafe7ef000.jpg") center / cover;
+    url("/assets/vendor/11062b-fc39bc30d1b04fa48aa1a5bcefaafe7ef000-2de7c8f3cce1.avif") center / cover;
   color: #ffffff;
   display: flex;
   justify-content: center;
@@ -8727,7 +8727,7 @@ section,
 }
 
 .contact-page-hero::before {
-  background-image: url("https://static.wixstatic.com/media/11062b_148abf6124504b8cbe6fa264a5249028~mv2.jpg/v1/fill/w_1920,h_560,al_c,q_95,usm_0.66_1.00_0.01,enc_avif,quality_auto/Server%20Room.jpg");
+  background-image: url("/assets/vendor/server-room-7c8931c62400.avif");
   background-position: center top;
   background-repeat: no-repeat;
   background-size: 100% auto;
@@ -9130,10 +9130,11 @@ section,
 }
 
 .phone-selected-flag {
-  display: block;
-  height: 12px;
-  object-fit: cover;
-  width: 20px;
+  display: inline-flex;
+  font-size: 16px;
+  height: 18px;
+  line-height: 1;
+  width: 22px;
 }
 
 .phone-input-shell > input {

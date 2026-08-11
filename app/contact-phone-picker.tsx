@@ -232,8 +232,10 @@ const countries: Country[] = [
   { iso: "ZW", name: "Zimbabwe", code: "+263" },
 ];
 
-function flagUrl(iso: string) {
-  return `https://flagcdn.com/w40/${iso.toLowerCase()}.png`;
+function flagEmoji(iso: string) {
+  return iso
+    .toUpperCase()
+    .replace(/./g, (char) => String.fromCodePoint(127397 + char.charCodeAt(0)));
 }
 
 export function ContactPhonePicker() {
@@ -266,12 +268,7 @@ export function ContactPhonePicker() {
           onClick={() => setOpen((current) => !current)}
         >
           {selectedCountry ? (
-            <img
-              className="phone-selected-flag"
-              src={flagUrl(selectedCountry.iso)}
-              alt=""
-              aria-hidden="true"
-            />
+            <span className="phone-selected-flag" aria-hidden="true">{flagEmoji(selectedCountry.iso)}</span>
           ) : (
             <svg
               className="phone-globe-icon"
@@ -318,7 +315,7 @@ export function ContactPhonePicker() {
                 window.setTimeout(() => inputRef.current?.focus(), 0);
               }}
             >
-              <img src={flagUrl(country.iso)} alt="" aria-hidden="true" />
+              <span className="phone-selected-flag" aria-hidden="true">{flagEmoji(country.iso)}</span>
               <span>
                 {country.name} {country.code}
               </span>
