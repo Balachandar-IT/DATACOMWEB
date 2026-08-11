@@ -1,7 +1,8 @@
+import type { Metadata } from "next";
 import { SimplePageShell } from "../../simple-page-shell";
 import { ProductDetailView } from "../../product-detail-view";
 import { shopCatalogBySlug } from "../../shop-catalog";
-import { productStructuredData } from "../../seo-utils";
+import { absoluteUrl, productStructuredData } from "../../seo-utils";
 
 type ProductPageProps = {
   params?: {
@@ -17,6 +18,36 @@ type ProductPageProps = {
 
 const fallbackImage =
   "/assets/vendor/file-1e8c79e7e15f.png";
+
+export function generateMetadata({ params, searchParams }: ProductPageProps): Metadata {
+  const product = params?.slug ? shopCatalogBySlug[params.slug] : undefined;
+  const title = product?.title ?? searchParams?.title ?? "Datacom Product";
+  const price = product?.price ?? searchParams?.price ?? "SGD 0.00";
+  const image = product?.image ?? searchParams?.image ?? fallbackImage;
+  const productPath = product?.productHref ?? `/product-page/${params?.slug ?? ""}`;
+  const description = `${title} from Datacom Enterprise Pte Ltd Singapore. ${price}, excluding sales tax. Enquire or buy online.`;
+
+  return {
+    title: `${title} | Datacom Enterprise Pte Ltd`,
+    description,
+    alternates: {
+      canonical: absoluteUrl(productPath),
+    },
+    openGraph: {
+      title,
+      description,
+      images: [absoluteUrl(image)],
+      type: "website",
+      url: absoluteUrl(productPath),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [absoluteUrl(image)],
+    },
+  };
+}
 
 export default function GenericProductPage({ params, searchParams }: ProductPageProps) {
   const product = params?.slug ? shopCatalogBySlug[params.slug] : undefined;

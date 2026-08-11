@@ -30,6 +30,7 @@ export function priceToNumber(price: string) {
 export function productStructuredData(slug: string) {
   const product = shopCatalog.find((item) => item.slug === slug);
   if (!product) return null;
+  const images = (product.galleryImages.length ? product.galleryImages : [product.image]).map(absoluteUrl);
 
   return {
     "@context": "https://schema.org",
@@ -39,7 +40,7 @@ export function productStructuredData(slug: string) {
       name: product.title.toLowerCase().includes("tough") ? "TOUGH" : "Datacom Enterprise",
     },
     description: `Buy or enquire about ${product.title} from Datacom Enterprise Pte Ltd Singapore.`,
-    image: product.galleryImages.length ? product.galleryImages : [product.image],
+    image: images,
     name: product.title,
     offers: {
       "@type": "Offer",
