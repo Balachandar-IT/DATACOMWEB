@@ -1529,6 +1529,21 @@ textarea {
   resize: vertical;
 }
 
+.form-status {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.form-status.success {
+  color: #05633d;
+}
+
+.form-status.error {
+  color: #cc1f1a;
+}
+
 .contact-form .btn {
   background: #0964b9;
   border: 0;

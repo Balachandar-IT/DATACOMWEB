@@ -4,16 +4,16 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { BackendStatus } from "./backend-status";
 import {
+  DashboardLiveAnalytics,
+  DashboardLiveHome,
+  DashboardLiveInbox,
+  DashboardLiveOrders,
+} from "./dashboard-live";
+import {
   aiVisibility,
-  deviceBreakdown,
-  inboxLeads,
-  locationBreakdown,
-  recentOrders,
   securityChecks,
   seoTasks,
   seoTools,
-  trafficCards,
-  type DashboardLead,
 } from "./dashboard-data";
 import { shopCatalog, type ShopCatalogProduct } from "./shop-catalog";
 
@@ -36,31 +36,13 @@ const sections: Array<{ id: DashboardSection; label: string; detail: string }> =
   { id: "security", label: "Security", detail: "Access, spam, audit logs" },
 ];
 
-function statusClass(status: string) {
-  return status.toLowerCase().replace(/\s+/g, "-");
-}
-
-function Bar({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="dashboard-bar">
-      <div>
-        <span>{label}</span>
-        <strong>{value}%</strong>
-      </div>
-      <span className="dashboard-bar-track">
-        <span style={{ width: `${value}%` }} />
-      </span>
-    </div>
-  );
-}
-
 function HomeView() {
   const setupItems = [
-    "Connect database for leads, orders, analytics, and edit history",
+    "Connect email provider for instant customer query email alerts",
     "Connect email provider for customer query notifications and replies",
     "Connect Google Search Console for real SEO performance",
     "Add owner login before publishing this dashboard",
-    "Connect analytics tracking for active users, devices, and locations",
+    "Connect payment provider for completed paid orders",
   ];
 
   return (
@@ -79,28 +61,7 @@ function HomeView() {
         </div>
       </article>
 
-      <div className="dashboard-grid four">
-        <article className="owner-metric blue">
-          <span>Catalog products</span>
-          <strong>{shopCatalog.length}</strong>
-          <small>From current shop catalog</small>
-        </article>
-        <article className="owner-metric gray">
-          <span>Inbox</span>
-          <strong>Not connected</strong>
-          <small>Waiting for form backend</small>
-        </article>
-        <article className="owner-metric gray">
-          <span>Analytics</span>
-          <strong>Not connected</strong>
-          <small>No fake visitors shown</small>
-        </article>
-        <article className="owner-metric gray">
-          <span>Security</span>
-          <strong>Setup needed</strong>
-          <small>Owner login required</small>
-        </article>
-      </div>
+      <DashboardLiveHome />
 
       <div className="dashboard-grid two">
         <article className="owner-panel">
@@ -130,10 +91,11 @@ function HomeView() {
             </div>
           </div>
           <div className="owner-list">
+            <div className="owner-list-row"><strong>Catalog products</strong><span>{shopCatalog.length}</span></div>
             <div className="owner-list-row"><strong>Shop catalog</strong><span>Connected</span></div>
-            <div className="owner-list-row"><strong>Customer inbox</strong><span>Not connected</span></div>
+            <div className="owner-list-row"><strong>Customer inbox</strong><span>Connected</span></div>
             <div className="owner-list-row"><strong>Email notifications</strong><span>Not connected</span></div>
-            <div className="owner-list-row"><strong>Live analytics</strong><span>Not connected</span></div>
+            <div className="owner-list-row"><strong>Live analytics</strong><span>Connected</span></div>
             <div className="owner-list-row"><strong>Admin authentication</strong><span>Not connected</span></div>
           </div>
         </article>
@@ -168,69 +130,6 @@ function HomeView() {
         </article>
       </div>
     </section>
-  );
-}
-
-function LeadPanel({ lead }: { lead: DashboardLead }) {
-  const [reply, setReply] = useState("");
-  const [sent, setSent] = useState(false);
-
-  return (
-    <article className="owner-panel inbox-reader">
-      <div className="owner-panel-heading">
-        <div>
-          <span className="owner-kicker">{lead.source}</span>
-          <h3>{lead.company}</h3>
-        </div>
-        <span className={`owner-status ${statusClass(lead.status)}`}>{lead.status}</span>
-      </div>
-      <dl className="lead-meta">
-        <div>
-          <dt>Name</dt>
-          <dd>{lead.name}</dd>
-        </div>
-        <div>
-          <dt>Email</dt>
-          <dd>{lead.email}</dd>
-        </div>
-        <div>
-          <dt>Phone</dt>
-          <dd>{lead.phone}</dd>
-        </div>
-        <div>
-          <dt>Interested in</dt>
-          <dd>{lead.interest}</dd>
-        </div>
-      </dl>
-      <div className="lead-message">
-        <strong>Message</strong>
-        <p>{lead.message}</p>
-      </div>
-      <label className="owner-field">
-        <span>Reply message</span>
-        <textarea
-          value={reply}
-          onChange={(event) => {
-            setReply(event.target.value);
-            setSent(false);
-          }}
-          placeholder="Type your reply here..."
-        />
-      </label>
-      <div className="owner-actions">
-        <button
-          type="button"
-          className="owner-primary"
-          onClick={() => setSent(reply.trim().length > 0)}
-        >
-          Send Reply
-        </button>
-        <a href={`mailto:${lead.email}`} className="owner-secondary">
-          Open Email
-        </a>
-      </div>
-      {sent ? <p className="owner-success">Reply saved in this console. Email provider connection is the next backend step.</p> : null}
-    </article>
   );
 }
 
@@ -307,93 +206,11 @@ function SeoView() {
 }
 
 function InboxView() {
-  const [selectedId, setSelectedId] = useState(inboxLeads[0]?.id ?? "");
-  const selectedLead = inboxLeads.find((lead) => lead.id === selectedId) ?? inboxLeads[0];
-
-  return (
-    <section className="dashboard-section inbox-layout">
-      <aside className="owner-panel inbox-list" aria-label="Inbox conversations">
-        <div className="owner-panel-heading">
-          <div>
-            <span className="owner-kicker">Live inbox</span>
-            <h3>{inboxLeads.length} conversations</h3>
-          </div>
-        </div>
-        {inboxLeads.length > 0 ? (
-          inboxLeads.map((lead) => (
-            <button
-              type="button"
-              className={lead.id === selectedId ? "inbox-item active" : "inbox-item"}
-              key={lead.id}
-              onClick={() => setSelectedId(lead.id)}
-            >
-              <span>
-                <strong>{lead.name}</strong>
-                <small>{lead.company}</small>
-              </span>
-              <em>{lead.status}</em>
-            </button>
-          ))
-        ) : (
-          <div className="owner-empty">
-            No website messages yet. Contact forms and chat need to save real leads to the backend.
-          </div>
-        )}
-      </aside>
-      {selectedLead ? (
-        <LeadPanel lead={selectedLead} />
-      ) : (
-        <article className="owner-panel inbox-reader">
-          <div className="owner-empty large">
-            Select a real customer message after the inbox backend is connected.
-          </div>
-        </article>
-      )}
-    </section>
-  );
+  return <DashboardLiveInbox />;
 }
 
 function OrdersView() {
-  return (
-    <section className="dashboard-section">
-      <div className="dashboard-grid four">
-        <article className="owner-metric blue"><span>Sales</span><strong>SGD 0.00</strong></article>
-        <article className="owner-metric green"><span>Orders</span><strong>{recentOrders.length}</strong></article>
-        <article className="owner-metric gray"><span>Average order value</span><strong>SGD 0.00</strong></article>
-        <article className="owner-metric red"><span>Abandoned carts</span><strong>Not connected</strong></article>
-      </div>
-      <article className="owner-panel">
-        <div className="owner-panel-heading">
-          <div>
-            <span className="owner-kicker">Sales</span>
-            <h3>Orders</h3>
-          </div>
-          <button type="button" className="owner-primary small">Add New Order</button>
-        </div>
-        {recentOrders.length > 0 ? (
-          <div className="owner-table">
-            <div className="owner-table-head">
-              <span>Order</span><span>Date created</span><span>Customer</span><span>Payment</span><span>Fulfillment</span><span>Total</span>
-            </div>
-            {recentOrders.map((order) => (
-              <div className="owner-table-row" key={order.id}>
-                <span>{order.id}</span>
-                <span>{order.date}</span>
-                <span>{order.customer}</span>
-                <span><em className="owner-badge paid">{order.payment}</em></span>
-                <span><em className="owner-badge fulfilled">{order.fulfillment}</em></span>
-                <span>{order.total}</span>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="owner-empty">
-            No real orders stored yet. Checkout needs to write completed orders to the backend before this table fills.
-          </div>
-        )}
-      </article>
-    </section>
-  );
+  return <DashboardLiveOrders />;
 }
 
 type ProductDraft = {
@@ -721,51 +538,7 @@ function ContentView() {
 }
 
 function AnalyticsView() {
-  return (
-    <section className="dashboard-section">
-      <div className="dashboard-grid four">
-        {trafficCards.map((card) => (
-          <article className="owner-metric blue" key={card.label}>
-            <span>{card.label}</span>
-            <strong>{card.value}</strong>
-            <small>{card.note}</small>
-          </article>
-        ))}
-      </div>
-      <div className="dashboard-grid two">
-        <article className="owner-panel">
-          <div className="owner-panel-heading">
-            <div>
-              <span className="owner-kicker">Devices</span>
-              <h3>Visitor device split</h3>
-            </div>
-          </div>
-          {deviceBreakdown.length > 0 ? (
-            deviceBreakdown.map((item) => <Bar key={item.label} {...item} />)
-          ) : (
-            <div className="owner-empty">
-              Device data is not connected yet.
-            </div>
-          )}
-        </article>
-        <article className="owner-panel">
-          <div className="owner-panel-heading">
-            <div>
-              <span className="owner-kicker">Location</span>
-              <h3>Visitor geography</h3>
-            </div>
-          </div>
-          {locationBreakdown.length > 0 ? (
-            locationBreakdown.map((item) => <Bar key={item.label} {...item} />)
-          ) : (
-            <div className="owner-empty">
-              Location data is not connected yet.
-            </div>
-          )}
-        </article>
-      </div>
-    </section>
-  );
+  return <DashboardLiveAnalytics />;
 }
 
 function SecurityView() {

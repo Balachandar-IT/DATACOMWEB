@@ -19,6 +19,13 @@ async function createLead(req, res) {
   const name = String(payload.name || "").trim();
   const message = String(payload.message || "").trim();
   if (!name || !message) return sendJson(res, 400, { error: "name and message are required" });
+  const metadata = payload.metadata && typeof payload.metadata === "object" ? payload.metadata : {};
+  const details = [
+    metadata.addons ? `Add-ons: ${metadata.addons}` : "",
+    metadata.serviceCategory ? `Service Category: ${metadata.serviceCategory}` : "",
+    metadata.pagePath ? `Page: ${metadata.pagePath}` : "",
+  ].filter(Boolean);
+  const storedMessage = details.length ? `${message}\n\n${details.join("\n")}` : message;
 
   const lead = await withPostgres(async (db) => {
     const { rows } = await db.query(
@@ -32,7 +39,7 @@ async function createLead(req, res) {
         payload.phone || null,
         payload.source || "website",
         payload.interest || null,
-        message,
+        storedMessage,
       ],
     );
     return rows[0];

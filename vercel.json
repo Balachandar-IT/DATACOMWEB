@@ -28,6 +28,10 @@
       "dest": "/api/analytics/events.js"
     },
     {
+      "src": "/api/analytics/summary",
+      "dest": "/api/analytics/summary.js"
+    },
+    {
       "src": "/assets/(.*)",
       "dest": "/assets/$1"
     },

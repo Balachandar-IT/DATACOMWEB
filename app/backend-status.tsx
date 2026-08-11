@@ -1,22 +1,24 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { getApiBase } from "./api-base";
 
 type BackendState =
   | { state: "checking" }
   | { state: "connected"; products: number }
   | { state: "offline"; message: string };
 
-const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "/api";
-
 export function BackendStatus() {
   const [status, setStatus] = useState<BackendState>({ state: "checking" });
+  const [backendUrl, setBackendUrl] = useState("/api");
 
   useEffect(() => {
+    const resolvedBackendUrl = getApiBase();
+    setBackendUrl(resolvedBackendUrl);
     const controller = new AbortController();
     const timeout = window.setTimeout(() => controller.abort(), 3500);
 
-    fetch(`${backendUrl}/health`, { signal: controller.signal })
+    fetch(`${resolvedBackendUrl}/health`, { signal: controller.signal })
       .then(async (response) => {
         if (!response.ok) throw new Error(`Backend returned ${response.status}`);
         return response.json() as Promise<{ products?: number }>;

@@ -1,7 +1,6 @@
 import { ContactIcon } from "../contact-icon";
-import { ContactChoiceDropdown } from "../contact-choice-dropdown";
+import { ContactLeadForm } from "../contact-lead-form";
 import { ContactPageReset } from "../contact-page-reset";
-import { ContactPhonePicker } from "../contact-phone-picker";
 import { SimplePageShell } from "../simple-page-shell";
 
 const contactDetails = [
@@ -65,45 +64,7 @@ export default function ContactPage() {
             </a>
           </div>
 
-          <form className="contact-page-form" aria-label="Get in touch form">
-            <h2>Get in touch</h2>
-            <label>
-              Name *
-              <input type="text" name="name" />
-            </label>
-            <label>
-              Company name
-              <input type="text" name="company" />
-            </label>
-            <label>
-              Email *
-              <input type="email" name="email" />
-            </label>
-            <label>
-              Phone
-              <ContactPhonePicker />
-            </label>
-            <ContactChoiceDropdown
-              label="Interested In"
-              name="interest"
-              options={["Products", "Services", "Both"]}
-            />
-            <ContactChoiceDropdown
-              label="Add-ons"
-              name="addons"
-              options={["Server", "Rack", "UPS", "Synology", "Accessories", "Others"]}
-            />
-            <ContactChoiceDropdown
-              label="Service Category"
-              name="serviceCategory"
-              options={["Installation", "SLA Support", "Relocation", "Others"]}
-            />
-            <label className="wide">
-              Write a message
-              <textarea name="message" />
-            </label>
-            <button type="button">Submit</button>
-          </form>
+          <ContactLeadForm className="contact-page-form" title="Get in touch" />
         </div>
       </section>
 

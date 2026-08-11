@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { AnalyticsTracker } from "./analytics-tracker";
 import { ScrollDashboard } from "./scroll-dashboard";
 import "./globals.css";
 
@@ -32,6 +33,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <ScrollDashboard />
+        <AnalyticsTracker />
         {children}
       </body>
     </html>

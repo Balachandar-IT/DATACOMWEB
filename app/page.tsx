@@ -1,7 +1,7 @@
 import type { CSSProperties } from "react";
 import { AiPromoPopup } from "./ai-promo-popup";
 import { ContactIcon } from "./contact-icon";
-import { ContactPhonePicker } from "./contact-phone-picker";
+import { ContactLeadForm } from "./contact-lead-form";
 import { CookieSettings } from "./cookie-settings";
 import { NavMoreMenu } from "./nav-more-menu";
 import { ProductSearch } from "./product-search";
@@ -530,58 +530,7 @@ export default function Home() {
             </div>
           </div>
         </div>
-        <form className="contact-form">
-          <h3>Get in touch</h3>
-          <label>
-            Name *
-            <input aria-label="Name" />
-          </label>
-          <label>
-            Company name
-            <input aria-label="Company name" />
-          </label>
-          <label>
-            Email *
-            <input aria-label="Email" />
-          </label>
-          <label>
-            Phone
-            <ContactPhonePicker />
-          </label>
-          <label className="wide">
-            Interested In
-            <select aria-label="Interested In" defaultValue="">
-              <option value="" disabled></option>
-              <option>Business IT Products</option>
-              <option>Data Center Products</option>
-              <option>AI Workstations</option>
-              <option>Services</option>
-            </select>
-          </label>
-          <label className="wide">
-            Add-ons
-            <select aria-label="Add-ons" defaultValue="">
-              <option value="" disabled></option>
-              <option>Installation</option>
-              <option>Configuration</option>
-              <option>Relocation</option>
-            </select>
-          </label>
-          <label className="wide">
-            Service Category
-            <select aria-label="Service Category" defaultValue="Installation">
-              <option>Installation</option>
-              <option>Infrastructure Setup</option>
-              <option>Workplace Solutions</option>
-              <option>IT Lifecycle Services</option>
-            </select>
-          </label>
-          <label className="wide">
-            Write a message
-            <textarea aria-label="Message" />
-          </label>
-          <button className="btn solid" type="button">Submit</button>
-        </form>
+        <ContactLeadForm className="contact-form" submitClassName="btn solid" title="Get in touch" titleLevel="h3" />
       </section>
 
       <SiteFooter />
