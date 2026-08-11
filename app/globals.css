@@ -509,6 +509,11 @@
   border-bottom: 1px solid #e2ebf4;
 }
 
+.active-visitor-table .owner-table-head,
+.active-visitor-table .owner-table-row {
+  grid-template-columns: 110px 100px 130px minmax(180px, 1fr) 150px 190px;
+}
+
 .content-product-list {
   display: grid;
   gap: 10px;

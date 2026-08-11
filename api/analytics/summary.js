@@ -24,6 +24,7 @@ export default async function handler(req, res) {
         deviceRows,
         locationRows,
         pageRows,
+        activeVisitorRows,
         eventRows,
         leadRows,
         orderRows,
@@ -66,6 +67,33 @@ export default async function handler(req, res) {
            GROUP BY COALESCE(page_path, '/')
            ORDER BY count DESC
            LIMIT 8`,
+        ),
+        db.query(
+          `WITH latest_active AS (
+             SELECT DISTINCT ON (session_id)
+                    session_id, event_name, page_path, device_type, country, region, created_at
+             FROM analytics_events
+             WHERE created_at >= NOW() - INTERVAL '5 minutes'
+             ORDER BY session_id, created_at DESC
+           ),
+           activity_counts AS (
+             SELECT session_id, COUNT(*)::int AS actions
+             FROM analytics_events
+             WHERE created_at >= NOW() - INTERVAL '24 hours'
+             GROUP BY session_id
+           )
+           SELECT latest_active.session_id,
+                  latest_active.event_name,
+                  latest_active.page_path,
+                  COALESCE(latest_active.device_type, 'Unknown') AS device_type,
+                  COALESCE(latest_active.country, 'Unknown') AS country,
+                  latest_active.region,
+                  latest_active.created_at,
+                  COALESCE(activity_counts.actions, 1) AS actions
+           FROM latest_active
+           LEFT JOIN activity_counts ON activity_counts.session_id = latest_active.session_id
+           ORDER BY latest_active.created_at DESC
+           LIMIT 20`,
         ),
         db.query(
           `SELECT id, event_name, page_path, metadata_json, created_at
@@ -111,6 +139,7 @@ export default async function handler(req, res) {
         devices: deviceRows.rows,
         locations: locationRows.rows,
         topPages: pageRows.rows,
+        activeVisitors: activeVisitorRows.rows,
         recentEvents: eventRows.rows.map(mapEvent),
         leads: leadRows.rows,
         orders: orderRows.rows,

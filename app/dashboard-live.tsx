@@ -35,8 +35,19 @@ type EventRow = {
   createdAt: string;
   metadata: Record<string, unknown>;
 };
+type ActiveVisitorRow = {
+  session_id: string;
+  event_name: string;
+  page_path: string | null;
+  device_type: string;
+  country: string;
+  region: string | null;
+  created_at: string;
+  actions: number;
+};
 type Summary = {
   activeNow: number;
+  activeVisitors: ActiveVisitorRow[];
   visitorsToday: number;
   eventsToday: number;
   devices: CountRow[];
@@ -50,6 +61,7 @@ type Summary = {
 
 const emptySummary: Summary = {
   activeNow: 0,
+  activeVisitors: [],
   devices: [],
   eventsToday: 0,
   leads: [],
@@ -111,6 +123,20 @@ function money(cents: number, currency = "SGD") {
   }).format((cents || 0) / 100);
 }
 
+function titleCaseEvent(value: string) {
+  const label = String(value || "activity").replace(/_/g, " ");
+  return label.charAt(0).toUpperCase() + label.slice(1);
+}
+
+function shortSession(value: string) {
+  return value ? `...${value.slice(-8)}` : "Unknown";
+}
+
+function visitorLocation(visitor: ActiveVisitorRow) {
+  const parts = [visitor.country, visitor.region].filter((part) => part && part !== "Unknown");
+  return parts.length ? parts.join(" / ") : "Unknown";
+}
+
 function CountBar({ item, total }: { item: CountRow; total: number }) {
   const value = total ? Math.max(4, Math.round((item.count / total) * 100)) : 0;
   return (
@@ -123,6 +149,39 @@ function CountBar({ item, total }: { item: CountRow; total: number }) {
         <span style={{ width: `${value}%` }} />
       </span>
     </div>
+  );
+}
+
+function ActiveVisitorsPanel({ visitors }: { visitors: ActiveVisitorRow[] }) {
+  return (
+    <article className="owner-panel">
+      <div className="owner-panel-heading">
+        <div>
+          <span className="owner-kicker">Active visitors</span>
+          <h3>Who is on the site now</h3>
+        </div>
+        <span className="owner-chip">{visitors.length} live</span>
+      </div>
+      {visitors.length ? (
+        <div className="owner-table active-visitor-table">
+          <div className="owner-table-head">
+            <span>Session</span><span>Device</span><span>Location</span><span>Current page</span><span>Last action</span><span>Last seen</span>
+          </div>
+          {visitors.map((visitor) => (
+            <div className="owner-table-row" key={visitor.session_id}>
+              <span>{shortSession(visitor.session_id)}</span>
+              <span>{visitor.device_type || "Unknown"}</span>
+              <span>{visitorLocation(visitor)}</span>
+              <span>{visitor.page_path || "/"}</span>
+              <span>{titleCaseEvent(visitor.event_name)} ({visitor.actions})</span>
+              <span>{formatDate(visitor.created_at)}</span>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="owner-empty">No visitor was active in the last 5 minutes.</div>
+      )}
+    </article>
   );
 }
 
@@ -167,6 +226,8 @@ export function DashboardLiveHome() {
           <small>Recent website enquiries</small>
         </article>
       </div>
+
+      <ActiveVisitorsPanel visitors={summary.activeVisitors} />
 
       <div className="dashboard-grid two">
         <article className="owner-panel">
@@ -371,6 +432,7 @@ export function DashboardLiveAnalytics() {
           {summary.topPages.length ? summary.topPages.map((item) => <CountBar item={item} total={pageTotal} key={item.label} />) : <div className="owner-empty">No page data yet.</div>}
         </article>
       </div>
+      <ActiveVisitorsPanel visitors={summary.activeVisitors} />
     </section>
   );
 }
