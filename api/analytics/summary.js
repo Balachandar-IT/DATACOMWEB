@@ -1,5 +1,4 @@
-import { withPostgres } from "../../backend/postgres.mjs";
-import { handleError, handleOptions, sendJson } from "../_helpers.js";
+import { handleError, handleOptions, sendJson, withServerPostgres } from "../_helpers.js";
 
 function mapEvent(event) {
   const label = String(event.event_name || "").replace(/_/g, " ");
@@ -17,7 +16,7 @@ export default async function handler(req, res) {
   if (req.method !== "GET") return sendJson(res, 405, { error: "Method not allowed" });
 
   try {
-    const summary = await withPostgres(async (db) => {
+    const summary = await withServerPostgres(async (db) => {
       const [
         active,
         today,

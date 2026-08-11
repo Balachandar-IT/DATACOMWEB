@@ -1,8 +1,7 @@
-import { withPostgres } from "../backend/postgres.mjs";
-import { centsFromPrice, handleError, handleOptions, readJson, sendJson } from "./_helpers.js";
+import { centsFromPrice, handleError, handleOptions, readJson, sendJson, withServerPostgres } from "./_helpers.js";
 
 async function listProducts(res) {
-  const products = await withPostgres(async (db) => {
+  const products = await withServerPostgres(async (db) => {
     const { rows } = await db.query(
       `SELECT id, slug, title, price_cents, currency, compare_price_cents,
               main_image_url, ribbon, stock_status, is_visible, seo_title,
@@ -22,7 +21,7 @@ async function createProduct(req, res) {
   const slug = String(payload.slug || "").trim();
   if (!title || !slug) return sendJson(res, 400, { error: "title and slug are required" });
 
-  const product = await withPostgres(async (db) => {
+  const product = await withServerPostgres(async (db) => {
     const { rows } = await db.query(
       `INSERT INTO products
         (slug, title, price_cents, currency, compare_price_cents, main_image_url,

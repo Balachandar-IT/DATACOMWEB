@@ -40,3 +40,8 @@ export function centsFromPrice(value) {
 export function handleError(res, error) {
   sendJson(res, 500, { error: error instanceof Error ? error.message : "Unexpected error" });
 }
+
+export async function withServerPostgres(callback) {
+  const { withPostgres } = await import("../backend/postgres.mjs");
+  return withPostgres(callback);
+}

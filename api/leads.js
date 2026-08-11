@@ -1,8 +1,7 @@
-import { withPostgres } from "../backend/postgres.mjs";
-import { handleError, handleOptions, readJson, sendJson } from "./_helpers.js";
+import { handleError, handleOptions, readJson, sendJson, withServerPostgres } from "./_helpers.js";
 
 async function listLeads(res) {
-  const leads = await withPostgres(async (db) => {
+  const leads = await withServerPostgres(async (db) => {
     const { rows } = await db.query(
       `SELECT id, name, company, email, phone, source, interest, message, status, created_at
        FROM leads
@@ -27,7 +26,7 @@ async function createLead(req, res) {
   ].filter(Boolean);
   const storedMessage = details.length ? `${message}\n\n${details.join("\n")}` : message;
 
-  const lead = await withPostgres(async (db) => {
+  const lead = await withServerPostgres(async (db) => {
     const { rows } = await db.query(
       `INSERT INTO leads (name, company, email, phone, source, interest, message)
        VALUES ($1, $2, $3, $4, $5, $6, $7)

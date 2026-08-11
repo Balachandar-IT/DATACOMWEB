@@ -20,8 +20,12 @@ export function BackendStatus() {
 
     fetch(`${resolvedBackendUrl}/health`, { signal: controller.signal })
       .then(async (response) => {
-        if (!response.ok) throw new Error(`Backend returned ${response.status}`);
-        return response.json() as Promise<{ products?: number }>;
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          const message = typeof payload.error === "string" ? payload.error : `Backend returned ${response.status}`;
+          throw new Error(message);
+        }
+        return payload as { products?: number };
       })
       .then((payload) => {
         setStatus({ state: "connected", products: Number(payload.products || 0) });
@@ -57,8 +61,7 @@ export function BackendStatus() {
         <p className="owner-note">Checking {backendUrl}/health...</p>
       ) : (
         <p className="owner-note">
-          Backend is not connected yet. Start PostgreSQL, add `.env`, run `npm run postgres:setup`,
-          then run `npm run backend:pg`.
+          Backend is not connected yet. {status.message} Check Vercel environment variables and redeploy.
         </p>
       )}
     </article>

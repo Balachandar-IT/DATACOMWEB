@@ -1,6 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { withPostgres } from "../../backend/postgres.mjs";
-import { handleError, handleOptions, readJson, sendJson } from "../_helpers.js";
+import { handleError, handleOptions, readJson, sendJson, withServerPostgres } from "../_helpers.js";
 
 function getDeviceType(userAgent = "") {
   const value = userAgent.toLowerCase();
@@ -19,7 +18,7 @@ export default async function handler(req, res) {
     const eventName = String(payload.eventName || "").trim();
     if (!eventName) return sendJson(res, 400, { error: "eventName is required" });
 
-    const event = await withPostgres(async (db) => {
+    const event = await withServerPostgres(async (db) => {
       const sessionId = payload.sessionId || randomUUID();
       const country = payload.country || req.headers["x-vercel-ip-country"] || null;
       const region = payload.region || req.headers["x-vercel-ip-country-region"] || null;
