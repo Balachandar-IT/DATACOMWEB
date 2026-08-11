@@ -1,6 +1,6 @@
 import { shopCatalog } from "./shop-catalog";
 
-export const siteUrl = "https://datacomweb.vercel.app";
+export const siteUrl = "https://www.datacom-sg.com";
 
 export const staticSeoPaths = [
   "/",
