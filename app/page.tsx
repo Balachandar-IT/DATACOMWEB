@@ -61,7 +61,7 @@ const navHref = (item: string) =>
       ? "/shop"
       : `#${item.toLowerCase().replaceAll(" ", "-")}`;
 
-const wix = {
+const siteImages = {
   about:
     "/assets/vendor/ab07e4-b09f97a0511445cfa5bfdce6091f83a7-mv2-e8f0ac53a24a.avif",
   deal:
@@ -89,11 +89,11 @@ const wix = {
 const dealCards = [
   {
     title: "Don't Miss These Exclusive Deals",
-    image: wix.deal,
+    image: siteImages.deal,
   },
   {
     title: "Be the First to Experience Our New Launches",
-    image: wix.launch,
+    image: siteImages.launch,
   },
 ];
 
@@ -152,14 +152,14 @@ const productCards = [
     title: "Business IT Products",
     sub: "Equip your team with enterprise-ready devices.",
     text: "Laptops, desktops, monitors, and printers from Apple, Dell, HP, Lenovo and more.",
-    image: wix.business,
+    image: siteImages.business,
     cta: "Browse Business Products",
   },
   {
     title: "Data Center Products",
     sub: "Powerful infrastructure to support your business growth.",
     text: "Servers, racks, storage, UPS, and networking from top brands like Synology, HPE, Cisco, and APC.",
-    image: wix.dataCenter,
+    image: siteImages.dataCenter,
     cta: "Explore Data Center Solutions",
   },
 ];
@@ -211,15 +211,15 @@ const whyItems = [
 ];
 
 const featuredProducts = [
-  ["1. Servers", "Enterprise-grade performance for critical workloads.", wix.dataCenter],
-  ["2. Synology NAS", "Reliable data storage, backup, and business continuity.", wix.nas],
-  ["3. APC UPS Systems", "Protect your IT equipment with trusted power solutions.", wix.ups],
-  ["4. Laptop / Desktop", "Powerful and secure laptops for business professionals.", wix.laptop],
-  ["5. QRUSH Product", "Affordable, reliable PC peripherals for everyday use.", wix.qrush],
+  ["1. Servers", "Enterprise-grade performance for critical workloads.", siteImages.dataCenter],
+  ["2. Synology NAS", "Reliable data storage, backup, and business continuity.", siteImages.nas],
+  ["3. APC UPS Systems", "Protect your IT equipment with trusted power solutions.", siteImages.ups],
+  ["4. Laptop / Desktop", "Powerful and secure laptops for business professionals.", siteImages.laptop],
+  ["5. QRUSH Product", "Affordable, reliable PC peripherals for everyday use.", siteImages.qrush],
   [
     "6. TOUGH Server Racks & Accessories",
     "Durable racks designed for efficiency and scalability.",
-    wix.rack,
+    siteImages.rack,
   ],
 ];
 
@@ -343,7 +343,7 @@ export default function Home() {
       </section>
 
       <section className="about-section" id="explore">
-        <img src={wix.about} alt="Datacom engineer working in a server rack" />
+        <img src={siteImages.about} alt="Datacom engineer working in a server rack" />
         <div>
           <span className="pill-label">About Us</span>
           <h2>About Us</h2>
