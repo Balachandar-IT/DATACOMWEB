@@ -1,6 +1,7 @@
 import { SimplePageShell } from "../../simple-page-shell";
 import { ProductDetailView } from "../../product-detail-view";
 import { shopCatalogBySlug } from "../../shop-catalog";
+import { productStructuredData } from "../../seo-utils";
 
 type ProductPageProps = {
   params?: {
@@ -25,9 +26,16 @@ export default function GenericProductPage({ params, searchParams }: ProductPage
   const images = product?.galleryImages ?? searchParams?.gallery?.split("|").filter(Boolean) ?? [image];
   const options = product?.options;
   const hasLaptopOptions = /elitebook|laptop|thinkpad|latitude/i.test(title);
+  const structuredData = productStructuredData(product?.slug ?? params?.slug ?? "");
 
   return (
     <SimplePageShell active="Shop">
+      {structuredData ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+        />
+      ) : null}
       <ProductDetailView
         cartHref={`/cart-page?slug=${product?.slug ?? params?.slug ?? ""}`}
         hasLaptopOptions={hasLaptopOptions}

@@ -156,6 +156,7 @@ function SeoView() {
           </div>
           <div className="owner-empty">
             Connect Google Search Console to show real impressions, clicks, search queries, and indexed pages.
+            The site already exposes sitemap.xml and robots.txt for verification and crawling.
           </div>
         </article>
 
@@ -180,7 +181,7 @@ function SeoView() {
             </div>
           ) : (
             <div className="owner-empty">
-              No AI visibility data yet. This needs real crawler logs or an analytics integration.
+              LLM discovery file is live at /llms.txt. AI platform crawl reports need server logs or a provider integration.
             </div>
           )}
         </article>
@@ -199,6 +200,12 @@ function SeoView() {
               {tool}
             </button>
           ))}
+        </div>
+        <div className="owner-check-grid compact">
+          <a href="/sitemap.xml">Open sitemap.xml</a>
+          <a href="/robots.txt">Open robots.txt</a>
+          <a href="/llms.txt">Open llms.txt</a>
+          <a href="/shop">Check product internal links</a>
         </div>
       </article>
     </section>

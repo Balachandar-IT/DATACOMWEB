@@ -28,10 +28,10 @@ export type DashboardTraffic = {
 };
 
 export const seoTasks = [
-  { label: "SEO setup checklist", status: "Not connected", tone: "gray" },
-  { label: "Open issues", status: "Not connected", tone: "gray" },
-  { label: "Recommendations", status: "Not connected", tone: "gray" },
-  { label: "Completed tasks", status: "Not connected", tone: "gray" },
+  { label: "SEO setup checklist", status: "Connected", tone: "green" },
+  { label: "Open issues", status: "2 remaining", tone: "red" },
+  { label: "Recommendations", status: "6 ready", tone: "blue" },
+  { label: "Completed tasks", status: "5", tone: "green" },
 ];
 
 export const seoTools = [

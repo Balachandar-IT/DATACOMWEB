@@ -32,6 +32,18 @@
       "dest": "/api/analytics/summary.js"
     },
     {
+      "src": "/sitemap.xml",
+      "dest": "/api/render.js"
+    },
+    {
+      "src": "/robots.txt",
+      "dest": "/api/render.js"
+    },
+    {
+      "src": "/llms.txt",
+      "dest": "/api/render.js"
+    },
+    {
       "src": "/assets/(.*)",
       "dest": "/assets/$1"
     },

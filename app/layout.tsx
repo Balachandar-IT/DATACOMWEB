@@ -1,9 +1,13 @@
 import type { Metadata, Viewport } from "next";
 import { AnalyticsTracker } from "./analytics-tracker";
 import { ScrollDashboard } from "./scroll-dashboard";
+import { organizationStructuredData, siteUrl } from "./seo-utils";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  alternates: {
+    canonical: siteUrl,
+  },
   title: "Datacom Enterprise Pte Ltd",
   description:
     "Reliable IT services, business IT products, data center products, and AI workstation solutions.",
@@ -32,6 +36,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationStructuredData()) }}
+        />
         <ScrollDashboard />
         <AnalyticsTracker />
         {children}
