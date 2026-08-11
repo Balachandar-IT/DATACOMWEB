@@ -2,34 +2,34 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist/client",
   "functions": {
-    "api/render.mjs": {
+    "api/render.js": {
       "includeFiles": "dist/**"
     }
   },
-  "rewrites": [
+  "routes": [
     {
-      "source": "/assets/:path*",
-      "destination": "/assets/:path*"
+      "src": "/assets/(.*)",
+      "dest": "/assets/$1"
     },
     {
-      "source": "/favicon.ico",
-      "destination": "/favicon.ico"
+      "src": "/favicon.ico",
+      "dest": "/favicon.ico"
     },
     {
-      "source": "/favicon.png",
-      "destination": "/favicon.png"
+      "src": "/favicon.png",
+      "dest": "/favicon.png"
     },
     {
-      "source": "/apple-touch-icon.png",
-      "destination": "/apple-touch-icon.png"
+      "src": "/apple-touch-icon.png",
+      "dest": "/apple-touch-icon.png"
     },
     {
-      "source": "/og.png",
-      "destination": "/og.png"
+      "src": "/og.png",
+      "dest": "/og.png"
     },
     {
-      "source": "/:path*",
-      "destination": "/api/render"
+      "src": "/(.*)",
+      "dest": "/api/render.js"
     }
   ]
 }

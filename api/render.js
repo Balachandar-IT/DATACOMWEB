@@ -19,7 +19,7 @@ function requestToFetch(req) {
     return new Request(url, { method, headers });
   }
 
-  return new Request(url, { method, headers, body: req });
+  return new Request(url, { method, headers, body: req, duplex: "half" });
 }
 
 async function sendFetchResponse(res, response) {
