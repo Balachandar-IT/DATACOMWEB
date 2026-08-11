@@ -8,6 +8,26 @@
   },
   "routes": [
     {
+      "src": "/api/health",
+      "dest": "/api/health.js"
+    },
+    {
+      "src": "/api/products",
+      "dest": "/api/products.js"
+    },
+    {
+      "src": "/api/leads",
+      "dest": "/api/leads.js"
+    },
+    {
+      "src": "/api/orders",
+      "dest": "/api/orders.js"
+    },
+    {
+      "src": "/api/analytics/events",
+      "dest": "/api/analytics/events.js"
+    },
+    {
       "src": "/assets/(.*)",
       "dest": "/assets/$1"
     },
