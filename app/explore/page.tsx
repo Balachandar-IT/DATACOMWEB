@@ -1,0 +1,5 @@
+import { ExploreContent } from "./explore-content";
+
+export default function ExplorePage() {
+  return <ExploreContent page={1} />;
+}

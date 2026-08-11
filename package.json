@@ -11,11 +11,20 @@
     "start": "vinext start",
     "test": "npm run build && node --test tests/rendered-html.test.mjs",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
-    "db:generate": "drizzle-kit generate"
+    "db:generate": "drizzle-kit generate",
+    "mysql:setup": "node backend/setup.mjs",
+    "mysql:import-catalog": "node backend/import-catalog.mjs",
+    "postgres:setup": "node backend/postgres-setup.mjs",
+    "postgres:import-catalog": "node backend/postgres-import-catalog.mjs",
+    "backend:pg": "node backend/postgres-server.mjs",
+    "backend:dev": "node backend/server.mjs",
+    "backend:check": "node backend/setup.mjs"
   },
   "dependencies": {
     "drizzle-orm": "0.45.2",
+    "mysql2": "^3.23.3",
     "next": "16.2.6",
+    "pg": "^8.23.0",
     "react": "19.2.6",
     "react-dom": "19.2.6"
   },

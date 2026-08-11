@@ -1,27 +1,26 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
+import { ScrollDashboard } from "./scroll-dashboard";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Datacom Enterprise | IT Services and Shop Singapore",
+  title: "Datacom Enterprise Pte Ltd",
   description:
-    "A Datacom-style IT services and ecommerce experience for servers, storage, racks, workplace devices, AI workstations, and support.",
+    "Reliable IT services, business IT products, data center products, and AI workstation solutions.",
   icons: {
-    icon: "/favicon.svg",
-    shortcut: "/favicon.svg",
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon-32x32.png", type: "image/png", sizes: "32x32" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
   },
-  openGraph: {
-    title: "Datacom Enterprise | IT Services and Shop Singapore",
-    description:
-      "Explore services, product families, shop filters, inquiry cart, and contact options for Datacom-style IT solutions.",
-    images: ["/og.png"],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Datacom Enterprise | IT Services and Shop Singapore",
-    description:
-      "A complete Datacom-style IT services and ecommerce clone with service details, shop filtering, inquiry cart, and contact flows.",
-    images: ["/og.png"],
-  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
@@ -31,7 +30,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <ScrollDashboard />
+        {children}
+      </body>
     </html>
   );
 }
