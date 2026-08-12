@@ -40,9 +40,9 @@ function HomeView() {
   const setupItems = [
     "Connect email provider for instant customer query email alerts",
     "Connect email provider for customer query notifications and replies",
-    "Connect Google Search Console for real SEO performance",
     "Add owner login before publishing this dashboard",
     "Connect payment provider for completed paid orders",
+    "Connect Google Search Console API to import impressions, clicks, queries, and indexed URLs",
   ];
 
   return (
@@ -96,6 +96,7 @@ function HomeView() {
             <div className="owner-list-row"><strong>Customer inbox</strong><span>Connected</span></div>
             <div className="owner-list-row"><strong>Email notifications</strong><span>Not connected</span></div>
             <div className="owner-list-row"><strong>Live analytics</strong><span>Connected</span></div>
+            <div className="owner-list-row"><strong>Search Console</strong><span>Verified</span></div>
             <div className="owner-list-row"><strong>Admin authentication</strong><span>Not connected</span></div>
           </div>
         </article>
@@ -152,11 +153,11 @@ function SeoView() {
               <span className="owner-kicker">Google Search Console</span>
               <h3>Site performance</h3>
             </div>
-            <span className="owner-chip">Not connected</span>
+            <span className="owner-chip">Connected</span>
           </div>
           <div className="owner-empty">
-            Connect Google Search Console to show real impressions, clicks, search queries, and indexed pages.
-            The site already exposes sitemap.xml and robots.txt for verification and crawling.
+            URL-prefix property is verified and sitemap.xml is submitted with 179 discovered pages.
+            Search performance metrics will appear in Google after crawl data updates; importing them here needs the Search Console API connection.
           </div>
         </article>
 

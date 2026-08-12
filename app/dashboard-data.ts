@@ -29,9 +29,9 @@ export type DashboardTraffic = {
 
 export const seoTasks = [
   { label: "SEO setup checklist", status: "Connected", tone: "green" },
-  { label: "Open issues", status: "2 remaining", tone: "red" },
-  { label: "Recommendations", status: "6 ready", tone: "blue" },
-  { label: "Completed tasks", status: "5", tone: "green" },
+  { label: "Sitemap submitted", status: "179 pages", tone: "green" },
+  { label: "Indexing", status: "Monitoring", tone: "blue" },
+  { label: "Completed tasks", status: "7", tone: "green" },
 ];
 
 export const seoTools = [
