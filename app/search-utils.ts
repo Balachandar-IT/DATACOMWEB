@@ -31,17 +31,17 @@ const getRelatedTerms = (queryWords: string[]) => {
   return relatedTerms;
 };
 
-export const getSearchSuggestions = (query: string, limit = 10) => {
+export const getSearchSuggestionsFromCatalog = (catalog: ShopCatalogProduct[], query: string, limit = 10) => {
   const normalizedQuery = normalize(query);
   const queryWords = normalizedQuery.split(" ").filter(Boolean);
 
   if (!queryWords.length) {
-    return shopCatalog.slice(0, limit);
+    return catalog.slice(0, limit);
   }
 
   const relatedTerms = getRelatedTerms(queryWords);
 
-  return shopCatalog
+  return catalog
     .map((product) => {
       const text = textForProduct(product);
       let score = 0;
@@ -73,6 +73,9 @@ export const getSearchSuggestions = (query: string, limit = 10) => {
     .slice(0, limit)
     .map((item) => item.product);
 };
+
+export const getSearchSuggestions = (query: string, limit = 10) =>
+  getSearchSuggestionsFromCatalog(shopCatalog, query, limit);
 
 export const getProductMeta = (product: ShopCatalogProduct) => {
   const firstOption = product.options.find((option) => option.values.length);

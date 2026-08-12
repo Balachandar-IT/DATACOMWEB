@@ -1,4 +1,5 @@
-import { getSearchSuggestions } from "../search-utils";
+import { getLiveCatalog } from "../live-products";
+import { getSearchSuggestionsFromCatalog } from "../search-utils";
 import { SimplePageShell } from "../simple-page-shell";
 
 type SearchPageProps = {
@@ -10,8 +11,7 @@ type SearchPageProps = {
 
 const categoryFilters = ["Datacenter-Product", "HPE Server", "Lenovo"];
 
-const getCategoryCount = (query: string, category: string) => {
-  const products = getSearchSuggestions(query, 80);
+const getCategoryCount = (products: Awaited<ReturnType<typeof getLiveCatalog>>, category: string) => {
   const normalizedCategory = category.toLowerCase();
 
   return products.filter((product) => {
@@ -29,9 +29,11 @@ const getCategoryCount = (query: string, category: string) => {
   }).length;
 };
 
-export default function SearchPage({ searchParams }: SearchPageProps) {
+export default async function SearchPage({ searchParams }: SearchPageProps) {
   const query = searchParams?.q?.trim() ?? "";
-  const products = getSearchSuggestions(query, query ? 10 : 12);
+  const catalog = await getLiveCatalog();
+  const matchingProducts = getSearchSuggestionsFromCatalog(catalog, query, 80);
+  const products = matchingProducts.slice(0, query ? 10 : 12);
   const resultLabel = `${products.length} ${products.length === 1 ? "product" : "products"}`;
 
   return (
@@ -69,7 +71,7 @@ export default function SearchPage({ searchParams }: SearchPageProps) {
                   <label key={category}>
                     <input type="checkbox" />
                     <span>{category}</span>
-                    <small>{getCategoryCount(query, category)}</small>
+                    <small>{getCategoryCount(matchingProducts, category)}</small>
                   </label>
                 ))}
               </div>

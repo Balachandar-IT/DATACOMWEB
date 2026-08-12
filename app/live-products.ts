@@ -8,7 +8,12 @@ const fallbackPageSize = shopCatalogPages[0]?.length || 24;
 
 function apiBase() {
   const configured = process.env.NEXT_PUBLIC_BACKEND_URL;
-  if (configured) return configured.replace(/\/$/, "");
+  if (configured) {
+    const normalized = configured.replace(/\/$/, "");
+    const isLocalBackend = /\/\/(localhost|127\.0\.0\.1)(:|\/|$)/.test(normalized);
+    if (!isLocalBackend || !process.env.VERCEL) return normalized;
+  }
+
   return process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}/api` : "";
 }
 

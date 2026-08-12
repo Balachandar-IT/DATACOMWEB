@@ -533,12 +533,28 @@ function ContentView() {
         updateDraft("galleryImages", [...galleryLinesToArray(draft.galleryImages), payload.imageUrl].join("\n"));
       }
       setUploadState("uploaded");
-      setMessage(`Image uploaded to GitHub: ${payload.imageUrl}. Vercel will publish the new file after the next deploy.`);
+      setMessage("Image uploaded to GitHub. Vercel will publish the new file after the next deploy.");
     } catch {
       setUploadState("error");
       setMessage("Image upload failed. Add GITHUB_TOKEN, GITHUB_OWNER, GITHUB_REPO, and GITHUB_BRANCH in Vercel.");
     } finally {
       event.target.value = "";
+    }
+  }
+
+  function setMainImage(image: string) {
+    updateDraft("image", image);
+    updateDraft(
+      "galleryImages",
+      [image, ...galleryLinesToArray(draft.galleryImages).filter((galleryImage) => galleryImage !== image)].join("\n"),
+    );
+  }
+
+  function removeGalleryImage(image: string) {
+    const nextGallery = galleryLinesToArray(draft.galleryImages).filter((galleryImage) => galleryImage !== image);
+    updateDraft("galleryImages", nextGallery.join("\n"));
+    if (draft.image === image) {
+      updateDraft("image", nextGallery[0] ?? "");
     }
   }
 
@@ -627,28 +643,43 @@ function ContentView() {
                   <h3>Product media</h3>
                 </div>
               </div>
-              <div className="catalog-image-preview">
+              <div className="catalog-image-preview media-upload-card">
                 {draft.image ? <img src={draft.image} alt={draft.title || "Product main image"} /> : <span>No main image</span>}
+                <label className="media-add-button" title={draft.image ? "Change main image" : "Add main image"}>
+                  <span aria-hidden="true">+</span>
+                  <input className="sr-only" type="file" accept="image/*" onChange={(event) => uploadImage(event, "main")} />
+                </label>
               </div>
-              <div className="catalog-gallery-row">
+              <div className="catalog-gallery-row media-gallery-row">
                 {galleryPreview.length > 0 ? (
-                  galleryPreview.map((image) => <img src={image} alt="" key={image} />)
+                  galleryPreview.map((image) => (
+                    <div className={image === draft.image ? "media-thumb active" : "media-thumb"} key={image}>
+                      <button type="button" onClick={() => setMainImage(image)} title="Use as main image">
+                        <img src={image} alt="" />
+                      </button>
+                      <button
+                        type="button"
+                        className="media-remove-button"
+                        onClick={() => removeGalleryImage(image)}
+                        aria-label="Remove image"
+                      >
+                        x
+                      </button>
+                    </div>
+                  ))
                 ) : (
                   <div className="owner-empty">No gallery images added.</div>
                 )}
+                <label className="media-thumb media-gallery-add" title="Add gallery image">
+                  <span aria-hidden="true">+</span>
+                  <input className="sr-only" type="file" accept="image/*" onChange={(event) => uploadImage(event, "gallery")} />
+                </label>
               </div>
-              <label className="owner-field">
-                <span>Main image</span>
-                <input type="file" accept="image/*" onChange={(event) => uploadImage(event, "main")} />
-                <small>{uploadState === "uploading" ? "Uploading to GitHub..." : "Choose from your PC. Link fills automatically."}</small>
-                <input value={draft.image} onChange={(event) => updateDraft("image", event.target.value)} />
-              </label>
-              <label className="owner-field">
-                <span>Gallery images</span>
-                <input type="file" accept="image/*" onChange={(event) => uploadImage(event, "gallery")} />
-                <small>Add extra image from your PC.</small>
-                <textarea value={draft.galleryImages} onChange={(event) => updateDraft("galleryImages", event.target.value)} />
-              </label>
+              <p className="owner-note media-upload-note">
+                {uploadState === "uploading"
+                  ? "Uploading image to GitHub..."
+                  : "Click + to add or change product images. Links are stored automatically."}
+              </p>
             </article>
 
             <article className="owner-panel">

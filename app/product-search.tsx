@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { getProductMeta, getSearchSuggestions } from "./search-utils";
-import { shopCatalog } from "./shop-catalog";
+import { getProductMeta, getSearchSuggestionsFromCatalog } from "./search-utils";
+import { shopCatalog, type ShopCatalogProduct } from "./shop-catalog";
+import { getApiBase } from "./api-base";
 
 const trendingSlugs = [
   "hp-elitebook-8-g1i-14-ai-pc",
@@ -11,11 +12,8 @@ const trendingSlugs = [
   "tough-cx-series-vertical-cable-management",
 ];
 
-const trendingProducts = trendingSlugs
-  .map((slug) => shopCatalog.find((product) => product.slug === slug))
-  .filter(Boolean);
-
 export function ProductSearch() {
+  const [catalog, setCatalog] = useState<ShopCatalogProduct[]>(shopCatalog);
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const normalizedQuery = query.trim();
@@ -29,13 +27,43 @@ export function ProductSearch() {
     }
   }, []);
 
+  useEffect(() => {
+    let mounted = true;
+
+    async function loadCatalog() {
+      try {
+        const response = await fetch(`${getApiBase()}/products`, { cache: "no-store" });
+        if (!response.ok) return;
+        const payload = (await response.json()) as { products?: ShopCatalogProduct[] };
+        if (mounted && payload.products?.length) {
+          setCatalog(payload.products);
+        }
+      } catch {
+        // Static catalog stays available when the live API is not connected.
+      }
+    }
+
+    loadCatalog();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const trendingProducts = useMemo(
+    () =>
+      trendingSlugs
+        .map((slug) => catalog.find((product) => product.slug === slug))
+        .filter(Boolean) as ShopCatalogProduct[],
+    [catalog],
+  );
+
   const results = useMemo(() => {
     if (!normalizedQuery) {
       return trendingProducts;
     }
 
-    return getSearchSuggestions(normalizedQuery, 8);
-  }, [normalizedQuery]);
+    return getSearchSuggestionsFromCatalog(catalog, normalizedQuery, 8);
+  }, [catalog, normalizedQuery, trendingProducts]);
   const heading = normalizedQuery ? "Suggested Products" : "Trending Products";
 
   return (
