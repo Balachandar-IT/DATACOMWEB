@@ -40,7 +40,7 @@ function HomeView() {
   const setupItems = [
     "Connect email provider for instant customer query email alerts",
     "Connect email provider for customer query notifications and replies",
-    "Add owner login before publishing this dashboard",
+    "Set dashboard username, password, and auth secret in Vercel",
     "Connect payment provider for completed paid orders",
     "Connect Google Search Console API to import impressions, clicks, queries, and indexed URLs",
   ];
@@ -623,6 +623,9 @@ export function DashboardControl() {
           <div className="owner-top-actions">
             <a href="/shop">Open Site</a>
             <button type="button">Owner Mode</button>
+            <form action="/dashboard-logout" method="post">
+              <button type="submit">Logout</button>
+            </form>
           </div>
         </header>
 

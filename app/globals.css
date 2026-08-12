@@ -118,6 +118,10 @@
   gap: 10px;
 }
 
+.owner-top-actions form {
+  margin: 0;
+}
+
 .owner-top-actions a,
 .owner-top-actions button,
 .owner-primary,
@@ -143,6 +147,89 @@
   min-height: 32px;
   padding: 6px 12px;
   font-size: 13px;
+}
+
+.owner-login-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 32px 16px;
+  background: #eef3f8;
+  color: #00335f;
+}
+
+.owner-login-card {
+  width: min(100%, 440px);
+  border: 1px solid #cdd9e6;
+  background: #fff;
+  padding: 32px;
+  box-shadow: 0 18px 50px rgba(0, 51, 95, 0.12);
+}
+
+.owner-login-card h1 {
+  margin: 8px 0 10px;
+  font-size: 32px;
+  line-height: 1.15;
+}
+
+.owner-login-card p {
+  margin: 0 0 22px;
+  color: #4e6680;
+}
+
+.owner-login-form {
+  display: grid;
+  gap: 16px;
+}
+
+.owner-login-form label {
+  display: grid;
+  gap: 7px;
+  font-weight: 700;
+}
+
+.owner-login-form input {
+  height: 46px;
+  border: 1px solid #8aa4c2;
+  padding: 0 12px;
+  font: inherit;
+  color: #00335f;
+}
+
+.owner-login-form button {
+  height: 48px;
+  border: 0;
+  background: #0b88f0;
+  color: #fff;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.owner-login-form input:disabled,
+.owner-login-form button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.owner-login-error,
+.owner-login-warning {
+  margin: 0 0 16px;
+  border: 1px solid;
+  padding: 12px;
+  font-weight: 700;
+}
+
+.owner-login-error {
+  border-color: #f04438;
+  background: #fff1f0;
+  color: #b42318;
+}
+
+.owner-login-warning {
+  border-color: #f5c542;
+  background: #fff8db;
+  color: #7a5200;
 }
 
 .owner-welcome {

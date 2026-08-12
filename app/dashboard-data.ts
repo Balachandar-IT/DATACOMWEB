@@ -64,8 +64,9 @@ export const locationBreakdown: Array<{ label: string; value: number }> = [];
 
 export const securityChecks = [
   { label: "HTTPS and secure cookies", status: "Ready" },
-  { label: "Admin sign-in and roles", status: "Needs backend" },
+  { label: "Owner dashboard login", status: "Ready" },
+  { label: "Staff roles", status: "Planned" },
   { label: "Form spam protection", status: "Needs provider" },
-  { label: "Database backups", status: "Needs D1" },
+  { label: "Database backups", status: "Needs Supabase policy" },
   { label: "Audit log for edits", status: "Planned" },
 ];

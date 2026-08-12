@@ -109,11 +109,8 @@ test("server-renders owner control dashboard", async () => {
 
   assert.equal(dashboard.status, 200);
   assert.match(dashboardHtml, /Owner Control/i);
-  assert.match(dashboardHtml, /Datacom website control center/i);
-  assert.match(dashboardHtml, /Catalog products/i);
-  assert.match(dashboardHtml, /SEO &amp; GEO/i);
-  assert.match(dashboardHtml, /Website messages and replies/i);
-  assert.match(dashboardHtml, /Content Control/i);
-  assert.match(dashboardHtml, /Analytics/i);
-  assert.match(dashboardHtml, /Security/i);
+  assert.match(dashboardHtml, /Datacom dashboard login/i);
+  assert.match(dashboardHtml, /DASHBOARD_USERNAME/i);
+  assert.doesNotMatch(dashboardHtml, /Datacom website control center/i);
+  assert.doesNotMatch(dashboardHtml, /Catalog products/i);
 });
