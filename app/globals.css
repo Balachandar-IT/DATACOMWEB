@@ -1013,9 +1013,8 @@ textarea {
 }
 
 .top-header .product-search {
-  height: 40px;
-  right: clamp(18px, 5vw, 72px);
-  top: 87px;
+  right: max(72px, calc((100vw - 1180px) / 2 + 72px));
+  top: 44px;
 }
 
 .nav-bar {
