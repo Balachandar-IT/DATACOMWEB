@@ -527,6 +527,25 @@
   flex-wrap: wrap;
 }
 
+.catalog-editor-hero .owner-actions {
+  margin-top: 0;
+}
+
+.catalog-editor-hero .owner-actions .owner-primary,
+.catalog-editor-hero .owner-actions .owner-secondary {
+  min-width: 104px;
+  text-align: center;
+}
+
+.owner-secondary.danger {
+  border-color: #f0b5b5;
+  color: #b42318;
+}
+
+.owner-secondary.danger:hover {
+  background: #fff1f0;
+}
+
 .owner-action-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -604,8 +623,9 @@
 .content-product-list {
   display: grid;
   gap: 10px;
-  max-height: 720px;
+  max-height: calc(100vh - 170px);
   overflow-y: auto;
+  padding-right: 4px;
 }
 
 .content-product {
@@ -634,6 +654,7 @@
   height: 72px;
   object-fit: contain;
   border: 1px solid #d8e3ef;
+  background: #fff;
 }
 
 .content-product span {
@@ -645,6 +666,11 @@
   color: #e60000;
 }
 
+.content-product strong {
+  font-size: 16px;
+  line-height: 1.25;
+}
+
 .catalog-studio {
   display: grid;
   grid-template-columns: 360px minmax(0, 1fr);
@@ -652,9 +678,23 @@
   align-items: start;
 }
 
+.easy-catalog-studio {
+  grid-template-columns: minmax(300px, 360px) minmax(620px, 1fr);
+  gap: 20px;
+}
+
 .catalog-list-panel {
   position: sticky;
   top: 18px;
+}
+
+.easy-catalog-list {
+  max-height: calc(100vh - 56px);
+  overflow: hidden;
+}
+
+.easy-catalog-list .owner-panel-heading {
+  align-items: center;
 }
 
 .catalog-editor {
@@ -663,8 +703,41 @@
   min-width: 0;
 }
 
+.easy-catalog-editor {
+  gap: 16px;
+}
+
+.easy-editor-header {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+}
+
+.easy-editor-header .owner-panel-heading {
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.easy-editor-header .owner-actions {
+  justify-content: flex-end;
+}
+
 .catalog-editor-hero h3 {
   font-size: 24px;
+}
+
+.easy-editor-sections {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(320px, 0.9fr) minmax(360px, 1.1fr);
+  align-items: start;
+}
+
+.easy-media-panel,
+.easy-info-panel,
+.easy-options-panel,
+.easy-seo-panel {
+  min-height: 100%;
 }
 
 .catalog-image-preview {
@@ -674,12 +747,21 @@
   border: 1px solid #cfe1f4;
   background: #fff;
   margin-bottom: 12px;
+  overflow: hidden;
 }
 
 .catalog-image-preview img {
   max-width: 100%;
   max-height: 250px;
   object-fit: contain;
+}
+
+.easy-media-panel .catalog-image-preview {
+  min-height: 260px;
+}
+
+.easy-media-panel .catalog-image-preview img {
+  max-height: 230px;
 }
 
 .catalog-image-preview span {
@@ -720,6 +802,10 @@
   grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 8px;
   margin-bottom: 14px;
+}
+
+.media-gallery-row {
+  grid-template-columns: repeat(auto-fill, minmax(58px, 1fr));
 }
 
 .catalog-gallery-row img {
@@ -810,6 +896,10 @@
   gap: 14px;
 }
 
+.easy-info-panel .owner-form-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .owner-field input,
 .owner-field select {
   min-height: 42px;
@@ -818,6 +908,28 @@
   color: #003866;
   font: inherit;
   background: #fff;
+  min-width: 0;
+  width: 100%;
+}
+
+.easy-seo-panel .owner-field,
+.easy-options-panel .owner-field {
+  margin-top: 12px;
+}
+
+.easy-seo-panel textarea,
+.easy-options-panel textarea {
+  min-height: 132px;
+}
+
+.easy-seo-panel .owner-check-grid.compact {
+  margin-top: 16px;
+}
+
+.owner-field small {
+  color: #607b96;
+  font-size: 12px;
+  line-height: 1.35;
 }
 
 .variant-preview {
@@ -832,6 +944,12 @@
   grid-template-columns: minmax(240px, 1fr) 120px 100px;
   gap: 10px;
   padding: 10px;
+}
+
+.easy-options-panel .variant-preview-head,
+.easy-options-panel .variant-preview-row {
+  min-width: 0;
+  grid-template-columns: minmax(0, 1fr) 92px 78px;
 }
 
 .variant-preview-head {
@@ -895,6 +1013,8 @@
   .dashboard-grid.four,
   .inbox-layout,
   .catalog-studio,
+  .easy-catalog-studio,
+  .easy-editor-sections,
   .seo-tools-grid,
   .owner-check-grid {
     grid-template-columns: 1fr;
@@ -919,6 +1039,7 @@
   .owner-sidebar nav,
   .lead-meta,
   .owner-form-grid,
+  .easy-info-panel .owner-form-grid,
   .catalog-gallery-row,
   .owner-check-grid.compact {
     grid-template-columns: 1fr;

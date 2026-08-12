@@ -566,8 +566,8 @@ function ContentView() {
         <article className={lowStockProducts.length ? "owner-metric red" : "owner-metric gray"}><span>Low stock</span><strong>{lowStockProducts.length}</strong><small>Less than 5 units</small></article>
       </div>
       {message ? <p className={publishState === "error" || uploadState === "error" ? "owner-login-error" : "owner-success"}>{message}</p> : null}
-      <div className="catalog-studio">
-        <aside className="owner-panel catalog-list-panel">
+      <div className="catalog-studio easy-catalog-studio">
+        <aside className="owner-panel catalog-list-panel easy-catalog-list">
           <div className="owner-panel-heading">
             <div>
               <span className="owner-kicker">Catalog Studio</span>
@@ -604,8 +604,8 @@ function ContentView() {
           </div>
         </aside>
 
-        <div className="catalog-editor">
-          <article className="owner-panel catalog-editor-hero">
+        <div className="catalog-editor easy-catalog-editor">
+          <article className="owner-panel catalog-editor-hero easy-editor-header">
             <div className="owner-panel-heading">
               <div>
                 <span className="owner-kicker">{mode === "add" ? "New product" : "Editing product"}</span>
@@ -635,8 +635,8 @@ function ContentView() {
             )}
           </article>
 
-          <div className="dashboard-grid two">
-            <article className="owner-panel">
+          <div className="easy-editor-sections">
+            <article className="owner-panel easy-media-panel">
               <div className="owner-panel-heading">
                 <div>
                   <span className="owner-kicker">Images and videos</span>
@@ -682,7 +682,7 @@ function ContentView() {
               </p>
             </article>
 
-            <article className="owner-panel">
+            <article className="owner-panel easy-info-panel">
               <div className="owner-panel-heading">
                 <div>
                   <span className="owner-kicker">Product info</span>
@@ -726,8 +726,8 @@ function ContentView() {
             </article>
           </div>
 
-          <div className="dashboard-grid two">
-            <article className="owner-panel">
+          <div className="easy-editor-sections">
+            <article className="owner-panel easy-options-panel">
               <div className="owner-panel-heading">
                 <div>
                   <span className="owner-kicker">Product options</span>
@@ -758,7 +758,7 @@ function ContentView() {
               </div>
             </article>
 
-            <article className="owner-panel">
+            <article className="owner-panel easy-seo-panel">
               <div className="owner-panel-heading">
                 <div>
                   <span className="owner-kicker">Marketing & SEO</span>
@@ -782,20 +782,6 @@ function ContentView() {
             </article>
           </div>
 
-          <div className="owner-panel-heading">
-            <div>
-              <span className="owner-kicker">Publishing status</span>
-              <h3>No-code goal</h3>
-            </div>
-          </div>
-          <div className="owner-panel">
-            <div className="owner-check-grid compact">
-              <span>Add product from dashboard</span>
-              <span>Edit product from dashboard</span>
-              <span>Manage images from dashboard</span>
-              <span>Control stock and low-stock alerts</span>
-            </div>
-          </div>
         </div>
       </div>
     </section>
