@@ -3,6 +3,7 @@ import { SimplePageShell } from "../../simple-page-shell";
 import { ProductDetailView } from "../../product-detail-view";
 import { shopCatalogBySlug } from "../../shop-catalog";
 import { absoluteUrl, productStructuredData } from "../../seo-utils";
+import { getLiveProduct } from "../../live-products";
 
 type ProductPageProps = {
   params?: {
@@ -49,8 +50,8 @@ export function generateMetadata({ params, searchParams }: ProductPageProps): Me
   };
 }
 
-export default function GenericProductPage({ params, searchParams }: ProductPageProps) {
-  const product = params?.slug ? shopCatalogBySlug[params.slug] : undefined;
+export default async function GenericProductPage({ params, searchParams }: ProductPageProps) {
+  const product = params?.slug ? await getLiveProduct(params.slug) : undefined;
   const title = product?.title ?? searchParams?.title ?? "Datacom Product";
   const price = product?.price ?? searchParams?.price ?? "SGD 0.00";
   const image = product?.image ?? searchParams?.image ?? fallbackImage;

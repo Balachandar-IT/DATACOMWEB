@@ -51,8 +51,8 @@ async function main() {
     for (const product of products) {
       const { rows } = await db.query(
         `INSERT INTO products
-          (slug, title, price_cents, compare_price_cents, currency, main_image_url, ribbon, stock_status, seo_title, seo_description)
-         VALUES ($1, $2, $3, $4, 'SGD', $5, $6, $7, $8, $9)
+          (slug, title, price_cents, compare_price_cents, currency, main_image_url, ribbon, stock_status, stock_quantity, seo_title, seo_description)
+         VALUES ($1, $2, $3, $4, 'SGD', $5, $6, $7, $8, $9, $10)
          ON CONFLICT (slug) DO UPDATE SET
           title = EXCLUDED.title,
           price_cents = EXCLUDED.price_cents,
@@ -60,6 +60,7 @@ async function main() {
           main_image_url = EXCLUDED.main_image_url,
           ribbon = EXCLUDED.ribbon,
           stock_status = EXCLUDED.stock_status,
+          stock_quantity = EXCLUDED.stock_quantity,
           seo_title = EXCLUDED.seo_title,
           seo_description = EXCLUDED.seo_description,
           updated_at = NOW()
@@ -72,6 +73,7 @@ async function main() {
           product.image || null,
           product.ribbon || null,
           product.stock === "out" ? "out" : "in",
+          product.stock === "out" ? 0 : 10,
           `${product.title} | Datacom Enterprise Pte Ltd`,
           `Buy or enquire about ${product.title} from Datacom Enterprise Pte Ltd Singapore.`,
         ],
@@ -100,14 +102,15 @@ async function main() {
       await db.query("DELETE FROM product_variants WHERE product_id = $1", [productId]);
       for (const variant of buildVariants(product.options)) {
         await db.query(
-          `INSERT INTO product_variants (product_id, variant_key, option_values_json, price_cents, stock_status)
-           VALUES ($1, $2, $3::jsonb, $4, $5)`,
+          `INSERT INTO product_variants (product_id, variant_key, option_values_json, price_cents, stock_status, stock_quantity)
+           VALUES ($1, $2, $3::jsonb, $4, $5, $6)`,
           [
             productId,
             variant.key,
             JSON.stringify(variant.values),
             centsFromPrice(product.price),
             product.stock === "out" ? "out" : "in",
+            product.stock === "out" ? 0 : 10,
           ],
         );
       }

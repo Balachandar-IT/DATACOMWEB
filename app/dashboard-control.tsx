@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import { BackendStatus } from "./backend-status";
+import { getApiBase } from "./api-base";
 import {
   DashboardLiveAnalytics,
   DashboardLiveHome,
@@ -228,6 +229,7 @@ type ProductDraft = {
   comparePrice: string;
   ribbon: string;
   stock: "in" | "out";
+  stockQuantity: string;
   image: string;
   galleryImages: string;
   seoTitle: string;
@@ -235,7 +237,17 @@ type ProductDraft = {
   options: string;
 };
 
-function draftFromProduct(product: ShopCatalogProduct): ProductDraft {
+type DashboardProduct = ShopCatalogProduct & {
+  id?: number;
+  stockQuantity: number;
+  stockStatus?: "in" | "out";
+  isVisible?: boolean;
+  seoTitle?: string;
+  seoDescription?: string;
+  descriptionHtml?: string;
+};
+
+function draftFromProduct(product: DashboardProduct): ProductDraft {
   return {
     title: product.title,
     slug: product.slug,
@@ -243,10 +255,11 @@ function draftFromProduct(product: ShopCatalogProduct): ProductDraft {
     comparePrice: product.comparePrice ?? "",
     ribbon: product.ribbon ?? "",
     stock: product.stock,
+    stockQuantity: String(product.stockQuantity ?? (product.stock === "out" ? 0 : 10)),
     image: product.image,
     galleryImages: product.galleryImages.join("\n"),
-    seoTitle: `${product.title} | Datacom Enterprise Pte Ltd`,
-    seoDescription: `Buy or enquire about ${product.title} from Datacom Enterprise Pte Ltd Singapore.`,
+    seoTitle: product.seoTitle || `${product.title} | Datacom Enterprise Pte Ltd`,
+    seoDescription: product.seoDescription || `Buy or enquire about ${product.title} from Datacom Enterprise Pte Ltd Singapore.`,
     options: product.options
       .map((option) => `${option.name}: ${option.values.join(", ")}`)
       .join("\n"),
@@ -261,6 +274,7 @@ function blankProductDraft(): ProductDraft {
     comparePrice: "",
     ribbon: "",
     stock: "in",
+    stockQuantity: "10",
     image: "",
     galleryImages: "",
     seoTitle: "",
@@ -299,9 +313,71 @@ function buildVariants(optionsText: string) {
     .slice(0, 24);
 }
 
+const staticDashboardProducts: DashboardProduct[] = shopCatalog.map((product) => ({
+  ...product,
+  stockQuantity: product.stock === "out" ? 0 : 10,
+}));
+
+function normalizeDashboardProduct(product: Partial<DashboardProduct>): DashboardProduct {
+  const title = product.title || "Untitled product";
+  const slug = product.slug || title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  const galleryImages = Array.isArray(product.galleryImages) ? product.galleryImages.filter(Boolean) : [];
+  const image = product.image || galleryImages[0] || "";
+  const stockQuantity = Number(product.stockQuantity ?? 0);
+
+  return {
+    title,
+    slug,
+    price: product.price || "SGD 0.00",
+    comparePrice: product.comparePrice || "",
+    image,
+    galleryImages: galleryImages.length ? galleryImages : image ? [image] : [],
+    hoverImage: product.hoverImage || galleryImages[1] || image,
+    productHref: product.productHref || `/product-page/${slug}`,
+    stock: product.stock || (stockQuantity > 0 ? "in" : "out"),
+    stockQuantity,
+    ribbon: product.ribbon || "",
+    sale: Boolean(product.ribbon),
+    quantity: true,
+    options: Array.isArray(product.options) ? product.options : [],
+    id: product.id,
+    isVisible: product.isVisible ?? true,
+    seoTitle: product.seoTitle || "",
+    seoDescription: product.seoDescription || "",
+    descriptionHtml: product.descriptionHtml || "",
+  };
+}
+
+function parseOptionsForPayload(optionsText: string) {
+  return parseOptions(optionsText).filter((option) => option.values.length > 0);
+}
+
+function galleryLinesToArray(value: string) {
+  return value
+    .split("\n")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+async function fileToBase64(file: File) {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const value = String(reader.result || "");
+      resolve(value.includes(",") ? value.split(",")[1] : value);
+    };
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
+}
+
 function ContentView() {
-  const products = useMemo(() => shopCatalog, []);
-  const [selectedSlug, setSelectedSlug] = useState(products[0]?.slug ?? "");
+  const [products, setProducts] = useState<DashboardProduct[]>(staticDashboardProducts);
+  const [loadingProducts, setLoadingProducts] = useState(true);
+  const [publishState, setPublishState] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [uploadState, setUploadState] = useState<"idle" | "uploading" | "uploaded" | "error">("idle");
+  const [message, setMessage] = useState("");
+  const [selectedSlug, setSelectedSlug] = useState(staticDashboardProducts[0]?.slug ?? "");
   const [mode, setMode] = useState<"edit" | "add">("edit");
   const selectedProduct = products.find((product) => product.slug === selectedSlug) ?? products[0];
   const [draft, setDraft] = useState<ProductDraft>(() =>
@@ -314,6 +390,35 @@ function ContentView() {
     .filter(Boolean)
     .slice(0, 6);
   const variants = buildVariants(draft.options);
+  const totalStock = products.reduce((sum, product) => sum + Number(product.stockQuantity || 0), 0);
+  const lowStockProducts = products.filter((product) => product.stockQuantity > 0 && product.stockQuantity < 5);
+  const outOfStockProducts = products.filter((product) => product.stockQuantity <= 0 || product.stock === "out");
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function loadProducts() {
+      try {
+        const response = await fetch(`${getApiBase()}/admin/products`, { cache: "no-store", credentials: "include" });
+        if (!response.ok) throw new Error(`Products API returned ${response.status}`);
+        const payload = await response.json() as { products?: Partial<DashboardProduct>[] };
+        const apiProducts = (payload.products || []).map(normalizeDashboardProduct);
+        if (!mounted || !apiProducts.length) return;
+        setProducts(apiProducts);
+        setSelectedSlug((current) => (apiProducts.some((product) => product.slug === current) ? current : apiProducts[0].slug));
+        if (mode === "edit") setDraft(draftFromProduct(apiProducts[0]));
+      } catch {
+        if (mounted) setMessage("Products API not connected yet. Showing current site catalog fallback.");
+      } finally {
+        if (mounted) setLoadingProducts(false);
+      }
+    }
+
+    loadProducts();
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   function selectProduct(product: ShopCatalogProduct) {
     setMode("edit");
@@ -335,13 +440,116 @@ function ContentView() {
     setSaved(true);
   }
 
+  async function publishProduct() {
+    setPublishState("saving");
+    setMessage("");
+    try {
+      const response = await fetch(`${getApiBase()}/admin/products`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          title: draft.title,
+          slug: draft.slug,
+          price: draft.price,
+          comparePrice: draft.comparePrice,
+          ribbon: draft.ribbon,
+          stock: Number(draft.stockQuantity || 0) <= 0 ? "out" : draft.stock,
+          stockQuantity: Number(draft.stockQuantity || 0),
+          image: draft.image,
+          galleryImages: galleryLinesToArray(draft.galleryImages),
+          seoTitle: draft.seoTitle,
+          seoDescription: draft.seoDescription,
+          options: parseOptionsForPayload(draft.options),
+        }),
+      });
+      if (!response.ok) throw new Error(`Save failed ${response.status}`);
+      const payload = await response.json() as { product: Partial<DashboardProduct> };
+      const savedProduct = normalizeDashboardProduct(payload.product);
+      setProducts((current) => {
+        const withoutSaved = current.filter((product) => product.slug !== savedProduct.slug);
+        return [savedProduct, ...withoutSaved];
+      });
+      setMode("edit");
+      setSelectedSlug(savedProduct.slug);
+      setDraft(draftFromProduct(savedProduct));
+      setSaved(false);
+      setPublishState("saved");
+      setMessage("Product saved to database. Website will show this data from the product API.");
+    } catch {
+      setPublishState("error");
+      setMessage("Product save failed. Check owner login, POSTGRES_URL, and deployment environment variables.");
+    }
+  }
+
+  async function deleteProduct() {
+    if (!selectedProduct || !window.confirm(`Delete ${selectedProduct.title}?`)) return;
+    setPublishState("saving");
+    setMessage("");
+    try {
+      const response = await fetch(`${getApiBase()}/admin/products?slug=${encodeURIComponent(selectedProduct.slug)}`, {
+        credentials: "include",
+        method: "DELETE",
+      });
+      if (!response.ok) throw new Error(`Delete failed ${response.status}`);
+      const nextProducts = products.filter((product) => product.slug !== selectedProduct.slug);
+      setProducts(nextProducts);
+      const nextProduct = nextProducts[0];
+      setSelectedSlug(nextProduct?.slug ?? "");
+      setDraft(nextProduct ? draftFromProduct(nextProduct) : blankProductDraft());
+      setMode(nextProduct ? "edit" : "add");
+      setPublishState("saved");
+      setMessage("Product deleted from database.");
+    } catch {
+      setPublishState("error");
+      setMessage("Delete failed. Check owner login and backend connection.");
+    }
+  }
+
+  async function uploadImage(event: ChangeEvent<HTMLInputElement>, target: "main" | "gallery") {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setUploadState("uploading");
+    setMessage("");
+    try {
+      const dataBase64 = await fileToBase64(file);
+      const response = await fetch(`${getApiBase()}/admin/media`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          contentType: file.type,
+          dataBase64,
+          fileName: file.name,
+        }),
+      });
+      if (!response.ok) throw new Error(`Upload failed ${response.status}`);
+      const payload = await response.json() as { imageUrl: string };
+      if (target === "main") {
+        updateDraft("image", payload.imageUrl);
+        const currentGallery = galleryLinesToArray(draft.galleryImages);
+        updateDraft("galleryImages", [payload.imageUrl, ...currentGallery.filter((image) => image !== payload.imageUrl)].join("\n"));
+      } else {
+        updateDraft("galleryImages", [...galleryLinesToArray(draft.galleryImages), payload.imageUrl].join("\n"));
+      }
+      setUploadState("uploaded");
+      setMessage(`Image uploaded to GitHub: ${payload.imageUrl}. Vercel will publish the new file after the next deploy.`);
+    } catch {
+      setUploadState("error");
+      setMessage("Image upload failed. Add GITHUB_TOKEN, GITHUB_OWNER, GITHUB_REPO, and GITHUB_BRANCH in Vercel.");
+    } finally {
+      event.target.value = "";
+    }
+  }
+
   return (
     <section className="dashboard-section">
       <div className="dashboard-grid three">
-        <article className="owner-metric blue"><span>Total products</span><strong>{shopCatalog.length}</strong></article>
-        <article className="owner-metric green"><span>Editable pages</span><strong>Not connected</strong></article>
-        <article className="owner-metric gray"><span>Media uploads</span><strong>Not connected</strong></article>
+        <article className="owner-metric blue"><span>Total products</span><strong>{products.length}</strong><small>{loadingProducts ? "Loading database" : "Database/catalog"}</small></article>
+        <article className="owner-metric green"><span>Total stock</span><strong>{totalStock}</strong><small>Available quantity</small></article>
+        <article className={lowStockProducts.length ? "owner-metric red" : "owner-metric gray"}><span>Low stock</span><strong>{lowStockProducts.length}</strong><small>Less than 5 units</small></article>
       </div>
+      {message ? <p className={publishState === "error" || uploadState === "error" ? "owner-login-error" : "owner-success"}>{message}</p> : null}
       <div className="catalog-studio">
         <aside className="owner-panel catalog-list-panel">
           <div className="owner-panel-heading">
@@ -349,6 +557,7 @@ function ContentView() {
               <span className="owner-kicker">Catalog Studio</span>
               <h3>Products</h3>
             </div>
+            <span className="owner-chip">{outOfStockProducts.length} out</span>
             <button
               type="button"
               className="owner-primary small"
@@ -372,7 +581,7 @@ function ContentView() {
                 <img src={product.image} alt={product.title} />
                 <span>
                   <strong>{product.title}</strong>
-                  <small>{product.price}</small>
+                  <small>{product.price} - Stock {product.stockQuantity}</small>
                 </span>
               </button>
             ))}
@@ -393,12 +602,20 @@ function ContentView() {
                 <button type="button" className="owner-primary" onClick={saveDraft}>
                   Save Draft
                 </button>
+                <button type="button" className="owner-primary" onClick={publishProduct} disabled={publishState === "saving"}>
+                  {publishState === "saving" ? "Publishing..." : "Publish"}
+                </button>
+                {mode === "edit" ? (
+                  <button type="button" className="owner-secondary danger" onClick={deleteProduct} disabled={publishState === "saving"}>
+                    Delete
+                  </button>
+                ) : null}
               </div>
             </div>
             {saved ? (
               <p className="owner-success">Draft saved in this browser. Backend publishing is the next step.</p>
             ) : (
-              <p className="owner-note">Changes here do not touch code. They are prepared as dashboard drafts until database publishing is connected.</p>
+              <p className="owner-note">Publish saves the product, stock, SEO fields, and image paths to PostgreSQL.</p>
             )}
           </article>
 
@@ -421,11 +638,15 @@ function ContentView() {
                 )}
               </div>
               <label className="owner-field">
-                <span>Main image URL</span>
+                <span>Main image</span>
+                <input type="file" accept="image/*" onChange={(event) => uploadImage(event, "main")} />
+                <small>{uploadState === "uploading" ? "Uploading to GitHub..." : "Choose from your PC. Link fills automatically."}</small>
                 <input value={draft.image} onChange={(event) => updateDraft("image", event.target.value)} />
               </label>
               <label className="owner-field">
-                <span>Gallery image URLs, one per line</span>
+                <span>Gallery images</span>
+                <input type="file" accept="image/*" onChange={(event) => uploadImage(event, "gallery")} />
+                <small>Add extra image from your PC.</small>
                 <textarea value={draft.galleryImages} onChange={(event) => updateDraft("galleryImages", event.target.value)} />
               </label>
             </article>
@@ -464,6 +685,11 @@ function ContentView() {
                     <option value="in">In stock</option>
                     <option value="out">Out of stock</option>
                   </select>
+                </label>
+                <label className="owner-field">
+                  <span>Stock quantity</span>
+                  <input type="number" min="0" value={draft.stockQuantity} onChange={(event) => updateDraft("stockQuantity", event.target.value)} />
+                  <small>{Number(draft.stockQuantity || 0) < 5 ? "Low stock alert will show in dashboard." : "Available stock count."}</small>
                 </label>
               </div>
             </article>
@@ -536,7 +762,7 @@ function ContentView() {
               <span>Add product from dashboard</span>
               <span>Edit product from dashboard</span>
               <span>Manage images from dashboard</span>
-              <span>Backend publish still needs database and storage</span>
+              <span>Control stock and low-stock alerts</span>
             </div>
           </div>
         </div>

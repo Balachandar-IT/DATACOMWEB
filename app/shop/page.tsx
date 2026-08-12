@@ -1,5 +1,6 @@
 import { ShopFilterableProducts } from "../shop-filterable-products";
 import { SimplePageShell } from "../simple-page-shell";
+import { getLiveCatalog, getLiveCatalogPages } from "../live-products";
 
 type ShopPageProps = {
   searchParams?: {
@@ -15,10 +16,12 @@ const getActivePage = (page?: string) => {
   return "1";
 };
 
-export default function ShopPage({ searchParams }: ShopPageProps) {
+export default async function ShopPage({ searchParams }: ShopPageProps) {
+  const [catalog, catalogPages] = await Promise.all([getLiveCatalog(), getLiveCatalogPages()]);
+
   return (
     <SimplePageShell active="Shop">
-      <ShopFilterableProducts activePage={getActivePage(searchParams?.page)} />
+      <ShopFilterableProducts activePage={getActivePage(searchParams?.page)} catalog={catalog} catalogPages={catalogPages} />
     </SimplePageShell>
   );
 }

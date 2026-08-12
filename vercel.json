@@ -16,6 +16,14 @@
       "dest": "/api/products.js"
     },
     {
+      "src": "/api/admin/products",
+      "dest": "/api/admin/products.js"
+    },
+    {
+      "src": "/api/admin/media",
+      "dest": "/api/admin/media.js"
+    },
+    {
       "src": "/api/leads",
       "dest": "/api/leads.js"
     },

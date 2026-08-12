@@ -48,6 +48,8 @@ type SelectedFilters = Record<string, string[]>;
 
 type ShopFilterableProductsProps = {
   activePage: string;
+  catalog?: ShopCatalogProduct[];
+  catalogPages?: ShopCatalogProduct[][];
 };
 
 const normalize = (value: string) => value.toLowerCase().replace(/[^a-z0-9]+/g, "");
@@ -148,21 +150,21 @@ const productMatchesFilters = (
   });
 };
 
-export function ShopFilterableProducts({ activePage }: ShopFilterableProductsProps) {
+export function ShopFilterableProducts({ activePage, catalog = shopCatalog, catalogPages = shopCatalogPages }: ShopFilterableProductsProps) {
   const [category, setCategory] = useState("All");
   const [priceMax, setPriceMax] = useState(maxPrice);
   const [selectedFilters, setSelectedFilters] = useState<SelectedFilters>({});
 
   const activePageIndex = Number(activePage) - 1;
-  const pageProducts = shopCatalogPages[activePageIndex] ?? shopCatalogPages[0];
+  const pageProducts = catalogPages[activePageIndex] ?? catalogPages[0] ?? [];
   const isFiltering = category !== "All" || priceMax < maxPrice || hasActiveOptionFilters(selectedFilters);
   const products = useMemo(() => {
     if (!isFiltering) {
       return pageProducts;
     }
 
-    return shopCatalog.filter((product) => productMatchesFilters(product, category, priceMax, selectedFilters));
-  }, [category, isFiltering, pageProducts, priceMax, selectedFilters]);
+    return catalog.filter((product) => productMatchesFilters(product, category, priceMax, selectedFilters));
+  }, [catalog, category, isFiltering, pageProducts, priceMax, selectedFilters]);
 
   const previousHref =
     activePage === "7"
