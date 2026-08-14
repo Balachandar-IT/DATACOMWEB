@@ -20,12 +20,14 @@ function plainValue(value) {
 }
 
 function getProvider() {
+  if (process.env.SMTP_HOST || process.env.SMTP_USER || process.env.SMTP_PASS) return "smtp";
   if (process.env.RESEND_API_KEY) return "resend";
   if (process.env.ELASTIC_EMAIL_API_KEY) return "elastic-email";
   return "";
 }
 
 function providerLabel(provider) {
+  if (provider === "smtp") return "SMTP";
   if (provider === "resend") return "Resend";
   if (provider === "elastic-email") return "Elastic Email";
   return "Not connected";
@@ -37,7 +39,11 @@ export function getEmailNotificationStatus() {
   const from = envValue(["EMAIL_FROM", "NOTIFICATION_EMAIL_FROM", "CONTACT_EMAIL_FROM"]);
   const missing = [];
 
-  if (!provider) missing.push("RESEND_API_KEY or ELASTIC_EMAIL_API_KEY");
+  if (!provider) missing.push("SMTP_HOST, SMTP_USER, SMTP_PASS or RESEND_API_KEY or ELASTIC_EMAIL_API_KEY");
+  if (provider === "smtp" && !process.env.SMTP_HOST) missing.push("SMTP_HOST");
+  if (provider === "smtp" && !process.env.SMTP_PORT) missing.push("SMTP_PORT");
+  if (provider === "smtp" && !process.env.SMTP_USER) missing.push("SMTP_USER");
+  if (provider === "smtp" && !process.env.SMTP_PASS) missing.push("SMTP_PASS");
   if (!to) missing.push("EMAIL_TO");
   if (!from) missing.push("EMAIL_FROM");
 
@@ -104,6 +110,29 @@ async function sendViaElasticEmail({ to, from, subject, text, html, replyTo }) {
   }
 }
 
+async function sendViaSmtp({ to, from, subject, text, html, replyTo }) {
+  const nodemailer = await import("nodemailer");
+  const port = Number(process.env.SMTP_PORT || 587);
+  const transporter = nodemailer.default.createTransport({
+    host: process.env.SMTP_HOST,
+    port,
+    secure: port === 465,
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+  });
+
+  await transporter.sendMail({
+    from,
+    to,
+    subject,
+    text,
+    html,
+    replyTo: replyTo || undefined,
+  });
+}
+
 export async function sendOwnerNotification({ subject, text, html, replyTo }) {
   const status = getEmailNotificationStatus();
   if (!status.connected) {
@@ -119,7 +148,11 @@ export async function sendConfiguredEmail({ to, subject, text, html, replyTo }) 
   const from = senderAddress();
   const missing = [];
 
-  if (!provider) missing.push("RESEND_API_KEY or ELASTIC_EMAIL_API_KEY");
+  if (!provider) missing.push("SMTP_HOST, SMTP_USER, SMTP_PASS or RESEND_API_KEY or ELASTIC_EMAIL_API_KEY");
+  if (provider === "smtp" && !process.env.SMTP_HOST) missing.push("SMTP_HOST");
+  if (provider === "smtp" && !process.env.SMTP_PORT) missing.push("SMTP_PORT");
+  if (provider === "smtp" && !process.env.SMTP_USER) missing.push("SMTP_USER");
+  if (provider === "smtp" && !process.env.SMTP_PASS) missing.push("SMTP_PASS");
   if (!from) missing.push("EMAIL_FROM");
   if (!to) missing.push("recipient email");
 
@@ -128,7 +161,9 @@ export async function sendConfiguredEmail({ to, subject, text, html, replyTo }) 
   }
 
   try {
-    if (provider === "resend") {
+    if (provider === "smtp") {
+      await sendViaSmtp({ to, from, subject, text, html, replyTo });
+    } else if (provider === "resend") {
       await sendViaResend({ to, from, subject, text, html, replyTo });
     } else if (provider === "elastic-email") {
       await sendViaElasticEmail({ to, from: envValue(["EMAIL_FROM", "NOTIFICATION_EMAIL_FROM", "CONTACT_EMAIL_FROM"]), subject, text, html, replyTo });
