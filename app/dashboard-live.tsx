@@ -393,7 +393,7 @@ export function DashboardTopNotifications({ onOpenInbox }: { onOpenInbox: () => 
       </button>
 
       {openPanel ? (
-        <div className="owner-notification-popover">
+        <div className="owner-notification-popover" onClick={(event) => event.stopPropagation()}>
           <div className="owner-popover-head">
             <strong>{openPanel === "messages" ? "Inbox" : "Notifications"}</strong>
             <span>
@@ -407,45 +407,47 @@ export function DashboardTopNotifications({ onOpenInbox }: { onOpenInbox: () => 
               <div className="owner-popover-section-title">{summary.activeNow} visitors on your site</div>
               {liveVisitors.length ? (
                 liveVisitors.map((visitor) => (
-                  <div className="owner-popover-row live-chat-row" key={visitor.session_id}>
-                    <span className="owner-popover-avatar live">{avatarLabel(visitor.session_id)}</span>
-                    <span>
-                      <strong>Visitor {shortSession(visitor.session_id)}</strong>
-                      <small>On Page: {visitor.page_path || "/"}<br />{visitorLocation(visitor)}</small>
-                    </span>
-                    <span className="popover-live-actions">
-                      <em>{timeAgo(visitor.created_at)}</em>
-                      <button type="button" onClick={() => openTopComposer(visitor)}>Message</button>
-                    </span>
+                  <div className="owner-live-visitor-item" key={visitor.session_id}>
+                    <button type="button" className="owner-popover-row live-chat-row" onClick={() => openTopComposer(visitor)}>
+                      <span className="owner-popover-avatar live">{avatarLabel(visitor.session_id)}</span>
+                      <span>
+                        <strong>Visitor {shortSession(visitor.session_id)}</strong>
+                        <small>On Page: {visitor.page_path || "/"}<br />{visitorLocation(visitor)}</small>
+                      </span>
+                      <span className="popover-live-actions">
+                        <em>{timeAgo(visitor.created_at)}</em>
+                        <strong>Message</strong>
+                      </span>
+                    </button>
+                    {messageVisitor?.session_id === visitor.session_id ? (
+                      <div className="owner-popover-composer">
+                        <strong>Message Visitor {shortSession(messageVisitor.session_id)}</strong>
+                        <small>{messageVisitor.page_path || "/"} - {visitorLocation(messageVisitor)}</small>
+                        <textarea
+                          value={topMessageText}
+                          onChange={(event) => setTopMessageText(event.target.value)}
+                          placeholder="Type message..."
+                          disabled={topSendState === "sending"}
+                        />
+                        <div>
+                          <button
+                            type="button"
+                            className="owner-primary small"
+                            onClick={sendTopVisitorMessage}
+                            disabled={!topMessageText.trim() || topSendState === "sending"}
+                          >
+                            {topSendState === "sending" ? "Sending..." : "Send"}
+                          </button>
+                          <button type="button" className="owner-secondary small" onClick={() => setMessageVisitorId(null)}>Close</button>
+                        </div>
+                        {topSendMessage ? <p className={topSendState === "error" ? "owner-error" : "owner-success"}>{topSendMessage}</p> : null}
+                      </div>
+                    ) : null}
                   </div>
                 ))
               ) : (
                 <div className="owner-popover-empty">No live visitors right now.</div>
               )}
-              {messageVisitor ? (
-                <div className="owner-popover-composer">
-                  <strong>Message Visitor {shortSession(messageVisitor.session_id)}</strong>
-                  <small>{messageVisitor.page_path || "/"} - {visitorLocation(messageVisitor)}</small>
-                  <textarea
-                    value={topMessageText}
-                    onChange={(event) => setTopMessageText(event.target.value)}
-                    placeholder="Type message..."
-                    disabled={topSendState === "sending"}
-                  />
-                  <div>
-                    <button
-                      type="button"
-                      className="owner-primary small"
-                      onClick={sendTopVisitorMessage}
-                      disabled={!topMessageText.trim() || topSendState === "sending"}
-                    >
-                      {topSendState === "sending" ? "Sending..." : "Send"}
-                    </button>
-                    <button type="button" className="owner-secondary small" onClick={() => setMessageVisitorId(null)}>Close</button>
-                  </div>
-                  {topSendMessage ? <p className={topSendState === "error" ? "owner-error" : "owner-success"}>{topSendMessage}</p> : null}
-                </div>
-              ) : null}
 
               <div className="owner-popover-section-title">All Messages</div>
               {latestMessages.length ? (

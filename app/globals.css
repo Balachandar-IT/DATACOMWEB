@@ -414,12 +414,20 @@
   background: #f8fbff;
 }
 
+.owner-live-visitor-item {
+  border-bottom: 1px solid #e5edf5;
+}
+
+.owner-live-visitor-item .owner-popover-row {
+  border-bottom: 0;
+}
+
 .owner-popover-row.live-chat-row {
-  cursor: default;
+  cursor: pointer;
 }
 
 .owner-popover-row.live-chat-row:hover {
-  background: #fff;
+  background: #f8fbff;
 }
 
 .owner-popover-row strong,
@@ -481,21 +489,17 @@
   gap: 7px;
 }
 
-.popover-live-actions button {
+.popover-live-actions strong {
   min-height: 28px;
   border: 1px solid #0b83f0;
   border-radius: 5px;
   background: #0b83f0;
   color: #fff;
-  cursor: pointer;
-  font: inherit;
+  display: inline-flex;
+  align-items: center;
   font-size: 12px;
   font-weight: 700;
   padding: 4px 10px;
-}
-
-.popover-live-actions button:hover {
-  background: #006fcf;
 }
 
 .owner-popover-composer {
