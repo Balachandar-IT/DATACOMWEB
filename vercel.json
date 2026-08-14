@@ -24,6 +24,10 @@
       "dest": "/api/admin/media.js"
     },
     {
+      "src": "/api/admin/notifications",
+      "dest": "/api/admin/notifications.js"
+    },
+    {
       "src": "/api/leads",
       "dest": "/api/leads.js"
     },

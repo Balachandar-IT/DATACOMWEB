@@ -355,6 +355,16 @@
   color: #116b3e;
 }
 
+.owner-status.warning {
+  background: #fff1f1;
+  color: #a32929;
+}
+
+.owner-muted {
+  color: #4f6d8d;
+  margin: 0 0 14px;
+}
+
 .seo-chart {
   min-height: 190px;
   display: grid;
@@ -571,6 +581,11 @@
 .owner-setup-list {
   display: grid;
   gap: 10px;
+}
+
+.owner-setup-list.compact {
+  gap: 8px;
+  margin-bottom: 14px;
 }
 
 .owner-setup-list span {

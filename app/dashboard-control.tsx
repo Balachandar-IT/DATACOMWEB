@@ -37,10 +37,138 @@ const sections: Array<{ id: DashboardSection; label: string; detail: string }> =
   { id: "security", label: "Security", detail: "Access, spam, audit logs" },
 ];
 
+type EmailNotificationStatus = {
+  connected: boolean;
+  provider: string;
+  toConfigured: boolean;
+  fromConfigured: boolean;
+  missing: string[];
+  error?: string;
+  test?: {
+    sent: boolean;
+    error?: string;
+  };
+};
+
+function useEmailNotificationStatus() {
+  const [status, setStatus] = useState<EmailNotificationStatus | null>(null);
+  const [state, setState] = useState<"loading" | "ready" | "error">("loading");
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function load() {
+      try {
+        const response = await fetch(`${getApiBase()}/admin/notifications`, {
+          cache: "no-store",
+          credentials: "include",
+        });
+        if (!response.ok) throw new Error(`Email status returned ${response.status}`);
+        const payload = (await response.json()) as EmailNotificationStatus;
+        if (mounted) {
+          setStatus(payload);
+          setState("ready");
+        }
+      } catch {
+        if (mounted) setState("error");
+      }
+    }
+
+    load();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  return { setStatus, state, status };
+}
+
+function EmailStatusText({ state, status }: { state: "loading" | "ready" | "error"; status: EmailNotificationStatus | null }) {
+  if (state === "loading") return <span>Checking...</span>;
+  if (state === "error") return <span>Login required</span>;
+  if (!status) return <span>Not connected</span>;
+  return <span>{status.connected ? `Connected (${status.provider})` : "Not connected"}</span>;
+}
+
+function EmailNotificationsPanel({
+  setStatus,
+  state,
+  status,
+}: {
+  setStatus: (status: EmailNotificationStatus) => void;
+  state: "loading" | "ready" | "error";
+  status: EmailNotificationStatus | null;
+}) {
+  const [testState, setTestState] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  const [testMessage, setTestMessage] = useState("");
+
+  async function sendTestEmail() {
+    setTestState("sending");
+    setTestMessage("");
+    try {
+      const response = await fetch(`${getApiBase()}/admin/notifications`, {
+        method: "POST",
+        credentials: "include",
+      });
+      const payload = (await response.json()) as EmailNotificationStatus;
+      setStatus(payload);
+      if (!response.ok || payload.test?.error) {
+        throw new Error(payload.error || payload.test?.error || "Test email failed");
+      }
+      setTestState("sent");
+      setTestMessage("Test email sent to the owner inbox.");
+    } catch (error) {
+      setTestState("error");
+      setTestMessage(error instanceof Error ? error.message : "Test email failed");
+    }
+  }
+
+  const missing = status?.missing || [];
+  const isConnected = Boolean(status?.connected);
+
+  return (
+    <article className="owner-panel">
+      <div className="owner-panel-heading">
+        <div>
+          <span className="owner-kicker">Email notifications</span>
+          <h3>Owner email alerts</h3>
+        </div>
+        <span className={isConnected ? "owner-chip" : "owner-status warning"}>
+          {state === "loading" ? "Checking" : isConnected ? status?.provider : "Not connected"}
+        </span>
+      </div>
+      <p className="owner-muted">
+        New contact form enquiries are saved to the dashboard and emailed to your owner inbox automatically.
+      </p>
+      {state === "error" ? (
+        <div className="owner-empty">Login again to check email notification settings.</div>
+      ) : missing.length ? (
+        <div className="owner-setup-list compact">
+          {missing.map((item) => (
+            <span key={item}>Add Vercel env: {item}</span>
+          ))}
+        </div>
+      ) : (
+        <div className="owner-list">
+          <div className="owner-list-row"><strong>Provider</strong><span>{status?.provider}</span></div>
+          <div className="owner-list-row"><strong>Recipient</strong><span>{status?.toConfigured ? "Configured" : "Missing"}</span></div>
+          <div className="owner-list-row"><strong>Sender</strong><span>{status?.fromConfigured ? "Configured" : "Missing"}</span></div>
+        </div>
+      )}
+      <div className="owner-actions">
+        <button type="button" className="owner-primary" onClick={sendTestEmail} disabled={!isConnected || testState === "sending"}>
+          {testState === "sending" ? "Sending..." : "Send test email"}
+        </button>
+        {testMessage ? <span className={testState === "sent" ? "owner-status new" : "owner-status warning"}>{testMessage}</span> : null}
+      </div>
+    </article>
+  );
+}
+
 function HomeView() {
+  const emailStatus = useEmailNotificationStatus();
   const setupItems = [
-    "Connect email provider for instant customer query email alerts",
-    "Connect email provider for customer query notifications and replies",
+    "Add EMAIL_TO, EMAIL_FROM, and a provider key in Vercel for instant customer query email alerts",
     "Set dashboard username, password, and auth secret in Vercel",
     "Connect payment provider for completed paid orders",
     "Connect Google Search Console API to import impressions, clicks, queries, and indexed URLs",
@@ -95,12 +223,13 @@ function HomeView() {
             <div className="owner-list-row"><strong>Catalog products</strong><span>{shopCatalog.length}</span></div>
             <div className="owner-list-row"><strong>Shop catalog</strong><span>Connected</span></div>
             <div className="owner-list-row"><strong>Customer inbox</strong><span>Connected</span></div>
-            <div className="owner-list-row"><strong>Email notifications</strong><span>Not connected</span></div>
+            <div className="owner-list-row"><strong>Email notifications</strong><EmailStatusText state={emailStatus.state} status={emailStatus.status} /></div>
             <div className="owner-list-row"><strong>Live analytics</strong><span>Connected</span></div>
             <div className="owner-list-row"><strong>Search Console</strong><span>Verified</span></div>
             <div className="owner-list-row"><strong>Admin authentication</strong><span>Not connected</span></div>
           </div>
         </article>
+        <EmailNotificationsPanel {...emailStatus} />
       </div>
 
       <div className="dashboard-grid two">

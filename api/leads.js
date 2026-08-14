@@ -1,4 +1,5 @@
 import { handleError, handleOptions, readJson, sendJson, withServerPostgres } from "./_helpers.js";
+import { leadNotification, sendOwnerNotification } from "./_email.js";
 
 async function listLeads(res) {
   const leads = await withServerPostgres(async (db) => {
@@ -43,7 +44,18 @@ async function createLead(req, res) {
     );
     return rows[0];
   });
-  sendJson(res, 201, { lead });
+  const notification = await sendOwnerNotification(
+    leadNotification({
+      name,
+      company: payload.company,
+      email: payload.email,
+      phone: payload.phone,
+      source: payload.source || "website",
+      interest: payload.interest,
+      message: storedMessage,
+    }),
+  );
+  sendJson(res, 201, { lead, notification });
 }
 
 export default async function handler(req, res) {

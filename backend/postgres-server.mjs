@@ -1,6 +1,7 @@
 import { createServer } from "node:http";
 import { randomUUID } from "node:crypto";
 import { withPostgres } from "./postgres.mjs";
+import { getEmailNotificationStatus, leadNotification, sendOwnerNotification, testNotification } from "../api/_email.js";
 
 const port = Number(process.env.BACKEND_PORT || 4000);
 const corsOrigin = process.env.CORS_ORIGIN || "*";
@@ -125,7 +126,18 @@ async function createLead(request, response) {
     );
     return rows[0];
   });
-  json(response, 201, { lead });
+  const notification = await sendOwnerNotification(
+    leadNotification({
+      name,
+      company: payload.company,
+      email: payload.email,
+      phone: payload.phone,
+      source: payload.source || "website",
+      interest: payload.interest,
+      message: storedMessage,
+    }),
+  );
+  json(response, 201, { lead, notification });
 }
 
 async function listOrders(response) {
@@ -306,6 +318,21 @@ async function createAnalyticsEvent(request, response) {
   json(response, 201, { event });
 }
 
+async function notificationStatus(response) {
+  json(response, 200, getEmailNotificationStatus());
+}
+
+async function sendTestNotification(response) {
+  const status = getEmailNotificationStatus();
+  if (!status.connected) {
+    json(response, 400, { ...status, error: "Email provider is not connected" });
+    return;
+  }
+
+  const result = await sendOwnerNotification(testNotification());
+  json(response, result.sent ? 200 : 502, { ...getEmailNotificationStatus(), test: result });
+}
+
 const server = createServer(async (request, response) => {
   if (request.method === "OPTIONS") {
     json(response, 204, {});
@@ -321,6 +348,8 @@ const server = createServer(async (request, response) => {
     if (request.method === "GET" && url.pathname === "/leads") return await listLeads(response);
     if (request.method === "POST" && url.pathname === "/leads") return await createLead(request, response);
     if (request.method === "GET" && url.pathname === "/orders") return await listOrders(response);
+    if (request.method === "GET" && url.pathname === "/admin/notifications") return await notificationStatus(response);
+    if (request.method === "POST" && url.pathname === "/admin/notifications") return await sendTestNotification(response);
     if (request.method === "GET" && url.pathname === "/analytics/summary") return await analyticsSummary(response);
     if (request.method === "POST" && url.pathname === "/analytics/events") return await createAnalyticsEvent(request, response);
 
