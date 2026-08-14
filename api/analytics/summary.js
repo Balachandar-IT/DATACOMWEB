@@ -1,4 +1,5 @@
 import { handleError, handleOptions, sendJson, withServerPostgres } from "../_helpers.js";
+import { ensureLiveChatTables } from "../_live-chat.js";
 
 function mapEvent(event) {
   const label = String(event.event_name || "").replace(/_/g, " ");
@@ -35,6 +36,7 @@ export default async function handler(req, res) {
 
   try {
     const summary = await withServerPostgres(async (db) => {
+      await ensureLiveChatTables(db);
       const [
         active,
         today,
@@ -99,6 +101,18 @@ export default async function handler(req, res) {
              FROM analytics_events
              WHERE created_at >= NOW() - INTERVAL '24 hours'
              GROUP BY session_id
+           ),
+           latest_messages AS (
+             SELECT DISTINCT ON (session_id)
+                    session_id, author, body, created_at
+             FROM visitor_messages
+             ORDER BY session_id, created_at DESC
+           ),
+           unread_messages AS (
+             SELECT session_id, COUNT(*)::int AS unread_chat_count
+             FROM visitor_messages
+             WHERE author = 'visitor' AND read_by_owner_at IS NULL
+             GROUP BY session_id
            )
            SELECT latest_active.session_id,
                   latest_active.event_name,
@@ -107,9 +121,15 @@ export default async function handler(req, res) {
                   COALESCE(latest_active.country, 'Unknown') AS country,
                   latest_active.region,
                   latest_active.created_at,
-                  COALESCE(activity_counts.actions, 1) AS actions
+                  COALESCE(activity_counts.actions, 1) AS actions,
+                  latest_messages.author AS latest_chat_author,
+                  latest_messages.body AS latest_chat_body,
+                  latest_messages.created_at AS latest_chat_at,
+                  COALESCE(unread_messages.unread_chat_count, 0) AS unread_chat_count
            FROM latest_active
            LEFT JOIN activity_counts ON activity_counts.session_id = latest_active.session_id
+           LEFT JOIN latest_messages ON latest_messages.session_id = latest_active.session_id
+           LEFT JOIN unread_messages ON unread_messages.session_id = latest_active.session_id
            ORDER BY latest_active.created_at DESC
            LIMIT 20`,
         ),

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { getApiBase } from "./api-base";
 
 type ChatMessage = {
   id: number;
@@ -8,12 +9,89 @@ type ChatMessage = {
   text: string;
 };
 
+type LiveChatMessage = {
+  id: number;
+  author: "owner" | "visitor";
+  body: string;
+  createdAt: string;
+};
+
+const sessionKey = "datacom-session-id";
+
+function getSessionId() {
+  if (typeof window === "undefined") return "";
+  let sessionId = window.localStorage.getItem(sessionKey);
+  if (!sessionId) {
+    sessionId = window.crypto?.randomUUID ? window.crypto.randomUUID() : `session-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    window.localStorage.setItem(sessionKey, sessionId);
+  }
+  return sessionId;
+}
+
+function currentPagePath() {
+  if (typeof window === "undefined") return "/";
+  return window.location.pathname + window.location.search;
+}
+
+function chatTime(value: string) {
+  try {
+    return new Intl.DateTimeFormat("en-SG", { hour: "numeric", minute: "2-digit" }).format(new Date(value));
+  } catch {
+    return "";
+  }
+}
+
 export function SmartChat({ servicePage = false }: { servicePage?: boolean }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isTechShedOpen, setIsTechShedOpen] = useState(false);
   const [techShedTab, setTechShedTab] = useState<"chat" | "whatsapp">("chat");
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [liveMessages, setLiveMessages] = useState<LiveChatMessage[]>([]);
+  const [liveMessage, setLiveMessage] = useState("");
+  const [liveState, setLiveState] = useState<"idle" | "sending" | "error">("idle");
+  const lastOwnerMessageId = useRef(0);
+  const firstLiveLoad = useRef(true);
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function loadLiveMessages() {
+      const sessionId = getSessionId();
+      if (!sessionId) return;
+      try {
+        const response = await fetch(`${getApiBase()}/live-chat/messages?sessionId=${encodeURIComponent(sessionId)}`, {
+          cache: "no-store",
+        });
+        if (!response.ok) return;
+        const payload = (await response.json()) as { messages?: LiveChatMessage[] };
+        if (!mounted) return;
+
+        const nextMessages = payload.messages || [];
+        const newestOwnerMessage = nextMessages
+          .filter((item) => item.author === "owner")
+          .reduce((max, item) => Math.max(max, item.id), 0);
+
+        setLiveMessages(nextMessages);
+        if (newestOwnerMessage > lastOwnerMessageId.current && !firstLiveLoad.current) {
+          setIsOpen(false);
+          setTechShedTab("chat");
+          setIsTechShedOpen(true);
+        }
+        lastOwnerMessageId.current = Math.max(lastOwnerMessageId.current, newestOwnerMessage);
+        firstLiveLoad.current = false;
+      } catch {
+        if (mounted) firstLiveLoad.current = false;
+      }
+    }
+
+    loadLiveMessages();
+    const timer = window.setInterval(loadLiveMessages, 5000);
+    return () => {
+      mounted = false;
+      window.clearInterval(timer);
+    };
+  }, []);
 
   const openChat = () => {
     setIsTechShedOpen(false);
@@ -26,6 +104,31 @@ export function SmartChat({ servicePage = false }: { servicePage?: boolean }) {
     setIsTechShedOpen(true);
   };
   const closeTechShed = () => setIsTechShedOpen(false);
+
+  async function sendLiveMessage() {
+    const trimmed = liveMessage.trim();
+    if (!trimmed) return;
+
+    setLiveState("sending");
+    try {
+      const response = await fetch(`${getApiBase()}/live-chat/messages`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          sessionId: getSessionId(),
+          body: trimmed,
+          pagePath: currentPagePath(),
+        }),
+      });
+      const payload = (await response.json()) as { message?: LiveChatMessage; error?: string };
+      if (!response.ok || !payload.message) throw new Error(payload.error || "Message was not sent");
+      setLiveMessages((current) => [...current, payload.message as LiveChatMessage]);
+      setLiveMessage("");
+      setLiveState("idle");
+    } catch {
+      setLiveState("error");
+    }
+  }
 
   return (
     <>
@@ -134,37 +237,43 @@ export function SmartChat({ servicePage = false }: { servicePage?: boolean }) {
           {techShedTab === "chat" ? (
             <div className="techshed-body">
               <time>2:22 PM</time>
-              <article className="techshed-message">
-                <small>Datacom Enterprise Pte Ltd</small>
-                <p>
-                  Hi there! Welcome to the site. Let me know if you have any questions.
-                </p>
-              </article>
-              <article className="techshed-message">
-                <p>
-                  Hey there, please leave your details so we can contact you even if
-                  you are no longer on the site.
-                </p>
-              </article>
-              <form className="techshed-form" onSubmit={(event) => event.preventDefault()}>
-                <label>
-                  Name
-                  <input aria-label="Name" />
-                </label>
-                <label>
-                  Email
-                  <input aria-label="Email" />
-                </label>
-                <label>
-                  Phone
-                  <input aria-label="Phone" />
-                </label>
-                <label>
-                  Message
-                  <input aria-label="Message" />
-                </label>
-                <button type="submit">Submit</button>
+              {liveMessages.length === 0 ? (
+                <>
+                  <article className="techshed-message">
+                    <small>Datacom Enterprise Pte Ltd</small>
+                    <p>Hi there! Welcome to the site. Let me know if you have any questions.</p>
+                  </article>
+                  <article className="techshed-message">
+                    <p>If our team is online, you can chat here directly. You can also use WhatsApp anytime.</p>
+                  </article>
+                </>
+              ) : null}
+              {liveMessages.map((chat) => (
+                <article className={chat.author === "owner" ? "techshed-message" : "techshed-user-message"} key={chat.id}>
+                  {chat.author === "owner" ? <small>Datacom Enterprise Pte Ltd</small> : null}
+                  <p>{chat.body}</p>
+                  <small>{chatTime(chat.createdAt)}</small>
+                </article>
+              ))}
+              <form
+                className="techshed-live-form"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  sendLiveMessage();
+                }}
+              >
+                <input
+                  aria-label="Live chat message"
+                  placeholder="Type your message..."
+                  value={liveMessage}
+                  onChange={(event) => setLiveMessage(event.target.value)}
+                  disabled={liveState === "sending"}
+                />
+                <button type="submit" disabled={!liveMessage.trim() || liveState === "sending"}>
+                  {liveState === "sending" ? "..." : "Send"}
+                </button>
               </form>
+              {liveState === "error" ? <p className="techshed-error">Message was not sent. Please try WhatsApp.</p> : null}
             </div>
           ) : (
             <div className="techshed-body whatsapp">

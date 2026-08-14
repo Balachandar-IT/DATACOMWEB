@@ -987,7 +987,96 @@
 
 .active-visitor-table .owner-table-head,
 .active-visitor-table .owner-table-row {
-  grid-template-columns: 110px 100px 130px minmax(180px, 1fr) 150px 190px;
+  grid-template-columns: 110px 100px 140px minmax(180px, 1fr) 190px 150px;
+}
+
+.visitor-chat-preview {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.visitor-chat-preview strong {
+  color: #0b5fb5;
+  font-size: 12px;
+}
+
+.visitor-chat-preview small {
+  color: #54708c;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.visitor-message-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.visitor-message-actions em {
+  display: inline-grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: #df2f2f;
+  color: #fff;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.visitor-message-actions button {
+  min-height: 32px;
+  border: 1px solid #0b83f0;
+  background: #0b83f0;
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  padding: 6px 12px;
+}
+
+.visitor-message-actions button:hover {
+  background: #006fcf;
+}
+
+.visitor-message-composer {
+  min-width: 860px;
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid #b7d9fb;
+  background: #f5faff;
+}
+
+.visitor-message-composer > div:first-child {
+  display: grid;
+  gap: 3px;
+}
+
+.visitor-message-composer strong {
+  color: #003866;
+}
+
+.visitor-message-composer small {
+  color: #54708c;
+}
+
+.visitor-message-composer textarea {
+  min-height: 88px;
+  resize: vertical;
+  border: 1px solid #b9c9d9;
+  color: #003866;
+  font: inherit;
+  padding: 10px 12px;
+}
+
+.visitor-message-composer > div:last-of-type {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 .content-product-list {
@@ -2890,6 +2979,7 @@ textarea {
 }
 
 .techshed-message,
+.techshed-user-message,
 .techshed-form {
   background: #ffffff;
   border-radius: 16px;
@@ -2897,24 +2987,88 @@ textarea {
   padding: 14px 16px;
 }
 
-.techshed-message small {
+.techshed-user-message {
+  background: #0b83f0;
+  color: #ffffff;
+  margin-left: 28px;
+}
+
+.techshed-message small,
+.techshed-user-message small {
   color: #002f63;
   display: block;
   font-size: 11px;
   margin-bottom: 5px;
 }
 
-.techshed-message p {
+.techshed-user-message small {
+  color: rgba(255, 255, 255, 0.82);
+  margin: 6px 0 0;
+  text-align: right;
+}
+
+.techshed-message p,
+.techshed-user-message p {
   color: #002f63;
   font-size: 13px;
   line-height: 1.32;
   margin: 0;
 }
 
+.techshed-user-message p {
+  color: #ffffff;
+}
+
 .techshed-form {
   display: grid;
   gap: 17px;
   padding: 24px 16px 18px;
+}
+
+.techshed-live-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  margin-top: 12px;
+  position: sticky;
+  bottom: -12px;
+  background: #e4f2ff;
+  padding-top: 10px;
+}
+
+.techshed-live-form input {
+  min-width: 0;
+  height: 42px;
+  border: 1px solid #a8c5e1;
+  border-radius: 999px;
+  color: #002f63;
+  font: inherit;
+  outline: 0;
+  padding: 0 14px;
+}
+
+.techshed-live-form button {
+  min-width: 68px;
+  height: 42px;
+  border: 0;
+  border-radius: 999px;
+  background: #003764;
+  color: #ffffff;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  padding: 0 14px;
+}
+
+.techshed-live-form button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.techshed-error {
+  color: #a32929;
+  font-size: 12px;
+  margin: 8px 0 0;
 }
 
 .techshed-form label {

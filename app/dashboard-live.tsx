@@ -51,6 +51,10 @@ type ActiveVisitorRow = {
   region: string | null;
   created_at: string;
   actions: number;
+  latest_chat_author?: "owner" | "visitor" | null;
+  latest_chat_body?: string | null;
+  latest_chat_at?: string | null;
+  unread_chat_count?: number;
 };
 type Summary = {
   activeNow: number;
@@ -102,7 +106,7 @@ function useDashboardSummary() {
     }
 
     load();
-    const timer = window.setInterval(load, 15000);
+    const timer = window.setInterval(load, 5000);
     return () => {
       mounted = false;
       window.clearInterval(timer);
@@ -179,6 +183,45 @@ function CountBar({ item, total }: { item: CountRow; total: number }) {
 }
 
 function ActiveVisitorsPanel({ visitors }: { visitors: ActiveVisitorRow[] }) {
+  const [activeSession, setActiveSession] = useState<string | null>(null);
+  const [messageText, setMessageText] = useState("");
+  const [sendState, setSendState] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  const [sendMessageText, setSendMessageText] = useState("");
+
+  const selectedVisitor = visitors.find((visitor) => visitor.session_id === activeSession) || null;
+
+  async function sendVisitorMessage() {
+    if (!selectedVisitor || !messageText.trim()) return;
+    setSendState("sending");
+    setSendMessageText("");
+    try {
+      const response = await fetch(`${getApiBase()}/admin/live-chat`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          sessionId: selectedVisitor.session_id,
+          body: messageText,
+          pagePath: selectedVisitor.page_path || "/",
+        }),
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || "Message was not sent");
+      setMessageText("");
+      setSendState("sent");
+      setSendMessageText("Message sent to the active visitor.");
+    } catch (error) {
+      setSendState("error");
+      setSendMessageText(error instanceof Error ? error.message : "Message was not sent");
+    }
+  }
+
+  function openComposer(visitor: ActiveVisitorRow) {
+    setActiveSession(visitor.session_id);
+    setSendState("idle");
+    setSendMessageText("");
+  }
+
   return (
     <article className="owner-panel">
       <div className="owner-panel-heading">
@@ -191,7 +234,7 @@ function ActiveVisitorsPanel({ visitors }: { visitors: ActiveVisitorRow[] }) {
       {visitors.length ? (
         <div className="owner-table active-visitor-table">
           <div className="owner-table-head">
-            <span>Session</span><span>Device</span><span>Location</span><span>Current page</span><span>Last action</span><span>Last seen</span>
+            <span>Session</span><span>Device</span><span>Location</span><span>Current page</span><span>Chat</span><span>Action</span>
           </div>
           {visitors.map((visitor) => (
             <div className="owner-table-row" key={visitor.session_id}>
@@ -199,10 +242,48 @@ function ActiveVisitorsPanel({ visitors }: { visitors: ActiveVisitorRow[] }) {
               <span>{visitor.device_type || "Unknown"}</span>
               <span>{visitorLocation(visitor)}</span>
               <span>{visitor.page_path || "/"}</span>
-              <span>{titleCaseEvent(visitor.event_name)} ({visitor.actions})</span>
-              <span>{formatDate(visitor.created_at)}</span>
+              <span className="visitor-chat-preview">
+                {visitor.latest_chat_body ? (
+                  <>
+                    <strong>{visitor.latest_chat_author === "owner" ? "You" : "Visitor"}</strong>
+                    <small>{visitor.latest_chat_body}</small>
+                  </>
+                ) : (
+                  <small>{titleCaseEvent(visitor.event_name)} ({visitor.actions})</small>
+                )}
+              </span>
+              <span className="visitor-message-actions">
+                {visitor.unread_chat_count ? <em>{visitor.unread_chat_count}</em> : null}
+                <button type="button" onClick={() => openComposer(visitor)}>Message</button>
+              </span>
             </div>
           ))}
+          {selectedVisitor ? (
+            <div className="visitor-message-composer">
+              <div>
+                <strong>Message Visitor {shortSession(selectedVisitor.session_id)}</strong>
+                <small>{selectedVisitor.page_path || "/"} - {visitorLocation(selectedVisitor)}</small>
+              </div>
+              <textarea
+                value={messageText}
+                onChange={(event) => setMessageText(event.target.value)}
+                placeholder="Type a live message for this visitor..."
+                disabled={sendState === "sending"}
+              />
+              <div>
+                <button
+                  type="button"
+                  className="owner-primary"
+                  onClick={sendVisitorMessage}
+                  disabled={!messageText.trim() || sendState === "sending"}
+                >
+                  {sendState === "sending" ? "Sending..." : "Send Live Message"}
+                </button>
+                <button type="button" className="owner-secondary" onClick={() => setActiveSession(null)}>Close</button>
+              </div>
+              {sendMessageText ? <p className={sendState === "error" ? "owner-error" : "owner-success"}>{sendMessageText}</p> : null}
+            </div>
+          ) : null}
         </div>
       ) : (
         <div className="owner-empty">No visitor was active in the last 5 minutes.</div>

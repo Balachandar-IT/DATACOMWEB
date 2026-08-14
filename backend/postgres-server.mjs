@@ -9,6 +9,7 @@ import {
   sendOwnerNotification,
   testNotification,
 } from "../api/_email.js";
+import { cleanChatBody, cleanSessionId, ensureLiveChatTables, mapVisitorMessage } from "../api/_live-chat.js";
 
 const port = Number(process.env.BACKEND_PORT || 4000);
 const corsOrigin = process.env.CORS_ORIGIN || "*";
@@ -191,6 +192,7 @@ async function attachReplies(db, leads) {
 
 async function analyticsSummary(response) {
   const summary = await withPostgres(async (db) => {
+    await ensureLiveChatTables(db);
     const [active, today, totalEvents, deviceRows, locationRows, pageRows, activeVisitorRows, eventRows, leadRows, orderRows] =
       await Promise.all([
         db.query(
@@ -245,6 +247,18 @@ async function analyticsSummary(response) {
              FROM analytics_events
              WHERE created_at >= NOW() - INTERVAL '24 hours'
              GROUP BY session_id
+           ),
+           latest_messages AS (
+             SELECT DISTINCT ON (session_id)
+                    session_id, author, body, created_at
+             FROM visitor_messages
+             ORDER BY session_id, created_at DESC
+           ),
+           unread_messages AS (
+             SELECT session_id, COUNT(*)::int AS unread_chat_count
+             FROM visitor_messages
+             WHERE author = 'visitor' AND read_by_owner_at IS NULL
+             GROUP BY session_id
            )
            SELECT latest_active.session_id,
                   latest_active.event_name,
@@ -253,9 +267,15 @@ async function analyticsSummary(response) {
                   COALESCE(latest_active.country, 'Unknown') AS country,
                   latest_active.region,
                   latest_active.created_at,
-                  COALESCE(activity_counts.actions, 1) AS actions
+                  COALESCE(activity_counts.actions, 1) AS actions,
+                  latest_messages.author AS latest_chat_author,
+                  latest_messages.body AS latest_chat_body,
+                  latest_messages.created_at AS latest_chat_at,
+                  COALESCE(unread_messages.unread_chat_count, 0) AS unread_chat_count
            FROM latest_active
            LEFT JOIN activity_counts ON activity_counts.session_id = latest_active.session_id
+           LEFT JOIN latest_messages ON latest_messages.session_id = latest_active.session_id
+           LEFT JOIN unread_messages ON unread_messages.session_id = latest_active.session_id
            ORDER BY latest_active.created_at DESC
            LIMIT 20`,
         ),
@@ -412,6 +432,87 @@ async function replyToLead(request, response) {
   json(response, result.status, result.body);
 }
 
+async function getVisitorMessages(request, response) {
+  const url = new URL(request.url || "/", `http://${request.headers.host || "localhost"}`);
+  const sessionId = cleanSessionId(url.searchParams.get("sessionId"));
+  if (!sessionId) return json(response, 400, { error: "sessionId is required" });
+
+  const messages = await withPostgres(async (db) => {
+    await ensureLiveChatTables(db);
+    const { rows } = await db.query(
+      `SELECT id, session_id, author, body, page_path, created_at
+       FROM visitor_messages
+       WHERE session_id = $1
+       ORDER BY created_at ASC
+       LIMIT 120`,
+      [sessionId],
+    );
+    await db.query(
+      `UPDATE visitor_messages
+       SET read_by_visitor_at = COALESCE(read_by_visitor_at, NOW())
+       WHERE session_id = $1 AND author = 'owner'`,
+      [sessionId],
+    );
+    return rows.map(mapVisitorMessage);
+  });
+
+  json(response, 200, { messages });
+}
+
+async function createVisitorMessage(request, response) {
+  const payload = await readJson(request);
+  const sessionId = cleanSessionId(payload.sessionId);
+  const body = cleanChatBody(payload.body);
+  const pagePath = String(payload.pagePath || "").slice(0, 500) || null;
+  if (!sessionId) return json(response, 400, { error: "sessionId is required" });
+  if (!body) return json(response, 400, { error: "Message is required" });
+
+  const message = await withPostgres(async (db) => {
+    await ensureLiveChatTables(db);
+    const { rows } = await db.query(
+      `INSERT INTO visitor_messages (session_id, author, body, page_path, read_by_visitor_at)
+       VALUES ($1, 'visitor', $2, $3, NOW())
+       RETURNING id, session_id, author, body, page_path, created_at`,
+      [sessionId, body, pagePath],
+    );
+    await db.query(
+      `INSERT INTO analytics_events (session_id, event_name, page_path, metadata_json)
+       VALUES ($1, 'visitor_chat_message', $2, $3)`,
+      [sessionId, pagePath, JSON.stringify({ source: "website_chat" })],
+    );
+    return mapVisitorMessage(rows[0]);
+  });
+
+  json(response, 201, { message });
+}
+
+async function createOwnerVisitorMessage(request, response) {
+  const payload = await readJson(request);
+  const sessionId = cleanSessionId(payload.sessionId);
+  const body = cleanChatBody(payload.body);
+  const pagePath = String(payload.pagePath || "").slice(0, 500) || null;
+  if (!sessionId) return json(response, 400, { error: "sessionId is required" });
+  if (!body) return json(response, 400, { error: "Message is required" });
+
+  const message = await withPostgres(async (db) => {
+    await ensureLiveChatTables(db);
+    const { rows } = await db.query(
+      `INSERT INTO visitor_messages (session_id, author, body, page_path, read_by_owner_at)
+       VALUES ($1, 'owner', $2, $3, NOW())
+       RETURNING id, session_id, author, body, page_path, created_at`,
+      [sessionId, body, pagePath],
+    );
+    await db.query(
+      `INSERT INTO admin_activity (actor, action, target_type, target_id, metadata_json)
+       VALUES ($1, 'message_live_visitor', 'visitor_session', $2, $3)`,
+      [process.env.DASHBOARD_USERNAME || "owner", sessionId, JSON.stringify({ pagePath })],
+    );
+    return mapVisitorMessage(rows[0]);
+  });
+
+  json(response, 201, { message });
+}
+
 const server = createServer(async (request, response) => {
   if (request.method === "OPTIONS") {
     json(response, 204, {});
@@ -430,6 +531,9 @@ const server = createServer(async (request, response) => {
     if (request.method === "GET" && url.pathname === "/admin/notifications") return await notificationStatus(response);
     if (request.method === "POST" && url.pathname === "/admin/notifications") return await sendTestNotification(response);
     if (request.method === "POST" && url.pathname === "/admin/leads") return await replyToLead(request, response);
+    if (request.method === "GET" && url.pathname === "/live-chat/messages") return await getVisitorMessages(request, response);
+    if (request.method === "POST" && url.pathname === "/live-chat/messages") return await createVisitorMessage(request, response);
+    if (request.method === "POST" && url.pathname === "/admin/live-chat") return await createOwnerVisitorMessage(request, response);
     if (request.method === "GET" && url.pathname === "/analytics/summary") return await analyticsSummary(response);
     if (request.method === "POST" && url.pathname === "/analytics/events") return await createAnalyticsEvent(request, response);
 

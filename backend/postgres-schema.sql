@@ -174,6 +174,21 @@ CREATE INDEX IF NOT EXISTS analytics_events_event_name_index ON analytics_events
 CREATE INDEX IF NOT EXISTS analytics_events_created_at_index ON analytics_events (created_at);
 CREATE INDEX IF NOT EXISTS analytics_events_page_path_index ON analytics_events (page_path);
 
+CREATE TABLE IF NOT EXISTS visitor_messages (
+  id BIGSERIAL PRIMARY KEY,
+  session_id VARCHAR(120) NOT NULL,
+  author VARCHAR(20) NOT NULL CHECK (author IN ('owner', 'visitor')),
+  body TEXT NOT NULL,
+  page_path VARCHAR(500),
+  read_by_owner_at TIMESTAMPTZ,
+  read_by_visitor_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS visitor_messages_session_id_index ON visitor_messages (session_id);
+CREATE INDEX IF NOT EXISTS visitor_messages_created_at_index ON visitor_messages (created_at);
+CREATE INDEX IF NOT EXISTS visitor_messages_author_index ON visitor_messages (author);
+
 CREATE TABLE IF NOT EXISTS admin_activity (
   id BIGSERIAL PRIMARY KEY,
   actor VARCHAR(180),
