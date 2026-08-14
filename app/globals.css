@@ -91,9 +91,13 @@
 .owner-topbar {
   display: flex;
   justify-content: space-between;
-  gap: 24px;
-  align-items: flex-start;
+  gap: 20px;
+  align-items: center;
   margin-bottom: 24px;
+  padding: 18px 20px;
+  background: #fff;
+  border: 1px solid #dbe8f5;
+  box-shadow: 0 10px 28px rgba(0, 56, 102, 0.06);
 }
 
 .owner-kicker {
@@ -115,8 +119,10 @@
 
 .owner-top-actions {
   display: flex;
-  gap: 10px;
-  align-items: flex-start;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .owner-top-actions form {
@@ -132,10 +138,17 @@
   border: 1px solid #0b83f0;
   background: #0b83f0;
   color: #fff;
-  padding: 8px 14px;
+  padding: 9px 16px;
   text-decoration: none;
   cursor: pointer;
   font: inherit;
+  font-weight: 700;
+  border-radius: 6px;
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s ease;
 }
 
 .owner-secondary,
@@ -146,30 +159,58 @@
   border-color: #b9c9d9;
 }
 
+.owner-top-actions > a:hover,
+.owner-primary:hover {
+  background: #006fcf;
+  border-color: #006fcf;
+  box-shadow: 0 8px 18px rgba(11, 131, 240, 0.18);
+  transform: translateY(-1px);
+}
+
+.owner-secondary:hover,
+.owner-top-actions > button:hover,
+.owner-top-actions > form > button:hover {
+  background: #f4f9ff;
+  border-color: #7fb3e8;
+  box-shadow: 0 8px 18px rgba(0, 56, 102, 0.08);
+  transform: translateY(-1px);
+}
+
 .owner-notification-bar {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 6px;
-  min-height: 38px;
+  gap: 4px;
+  min-height: 42px;
+  padding: 4px;
+  background: #fff;
+  border: 1px solid #d7e6f5;
+  border-radius: 8px;
+  box-shadow: 0 8px 22px rgba(0, 56, 102, 0.08);
 }
 
 .owner-live-pill,
 .owner-icon-button {
   position: relative;
   min-height: 34px;
-  border: 1px solid #d2e3f7;
-  background: #fff;
+  border: 0;
+  background: transparent;
   color: #003866;
   cursor: pointer;
   font: inherit;
+  border-radius: 6px;
+  transition:
+    background-color 0.18s ease,
+    color 0.18s ease;
 }
 
 .owner-live-pill {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 8px;
+  gap: 7px;
+  padding: 4px 10px 4px 7px;
+  background: #f5f9ff;
+  border-right: 1px solid #dce9f7;
 }
 
 .owner-live-pill strong {
@@ -180,6 +221,8 @@
   background: #12a45b;
   color: #fff;
   font-size: 12px;
+  border-radius: 999px;
+  box-shadow: 0 0 0 2px #fff;
 }
 
 .owner-avatar-stack {
@@ -188,12 +231,13 @@
 }
 
 .owner-avatar-stack span {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   border: 2px solid #fff;
   border-radius: 50%;
   background: #48a8ff;
   margin-left: -5px;
+  box-shadow: 0 2px 6px rgba(0, 56, 102, 0.16);
 }
 
 .owner-avatar-stack span:first-child {
@@ -206,7 +250,8 @@
 }
 
 .owner-icon-button {
-  width: 34px;
+  width: 36px;
+  height: 34px;
   display: inline-grid;
   place-items: center;
   padding: 0;
@@ -215,16 +260,17 @@
 .owner-icon-button.active,
 .owner-icon-button:hover,
 .owner-live-pill:hover {
-  border-color: #0b83f0;
-  background: #eef7ff;
+  background: #eaf4ff;
+  color: #006fcf;
 }
 
 .owner-icon-button em {
   position: absolute;
-  right: -5px;
-  top: -7px;
-  min-width: 17px;
-  height: 17px;
+  right: 0;
+  top: 0;
+  transform: translate(35%, -35%);
+  min-width: 19px;
+  height: 19px;
   display: inline-grid;
   place-items: center;
   border-radius: 999px;
@@ -233,6 +279,8 @@
   font-size: 10px;
   font-style: normal;
   font-weight: 700;
+  border: 2px solid #fff;
+  box-shadow: 0 3px 8px rgba(223, 47, 47, 0.22);
 }
 
 .owner-message-glyph,
@@ -244,7 +292,7 @@
 }
 
 .owner-message-glyph {
-  border: 1.8px solid #315d86;
+  border: 1.8px solid currentColor;
   border-radius: 3px;
 }
 
@@ -254,7 +302,7 @@
   left: 3px;
   bottom: -5px;
   border: 5px solid transparent;
-  border-top-color: #315d86;
+  border-top-color: currentColor;
   border-right: 0;
 }
 
@@ -265,7 +313,7 @@
   top: 2px;
   width: 9px;
   height: 11px;
-  border: 1.8px solid #315d86;
+  border: 1.8px solid currentColor;
   border-radius: 9px 9px 4px 4px;
 }
 
@@ -276,21 +324,22 @@
   bottom: 0;
   width: 5px;
   height: 2px;
-  background: #315d86;
+  background: currentColor;
   border-radius: 999px;
 }
 
 .owner-notification-popover {
   position: absolute;
-  top: 42px;
+  top: 50px;
   right: 0;
   z-index: 20;
-  width: min(340px, calc(100vw - 32px));
+  width: min(360px, calc(100vw - 32px));
   max-height: 560px;
   overflow-y: auto;
   background: #fff;
   border: 1px solid #d7e3f0;
-  box-shadow: 0 14px 36px rgba(14, 36, 60, 0.18);
+  border-radius: 8px;
+  box-shadow: 0 18px 44px rgba(14, 36, 60, 0.18);
 }
 
 .owner-notification-popover::before {
@@ -301,6 +350,7 @@
   width: 14px;
   height: 14px;
   background: #fff;
+  border-radius: 2px 0 0 0;
   border-left: 1px solid #d7e3f0;
   border-top: 1px solid #d7e3f0;
   transform: rotate(45deg);
