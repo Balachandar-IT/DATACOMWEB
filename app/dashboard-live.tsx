@@ -16,6 +16,13 @@ type LeadRow = {
   message: string;
   status: string;
   created_at: string;
+  replies?: Array<{
+    id: number;
+    lead_id: number;
+    body: string;
+    sent_to_email: string | null;
+    created_at: string;
+  }>;
 };
 type OrderRow = {
   id: number;
@@ -286,10 +293,41 @@ export function DashboardLiveHome() {
 export function DashboardLiveInbox() {
   const { state, summary } = useDashboardSummary();
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [replyBody, setReplyBody] = useState("");
+  const [replyState, setReplyState] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  const [replyMessage, setReplyMessage] = useState("");
   const selectedLead = useMemo(
     () => summary.leads.find((lead) => lead.id === (selectedId ?? summary.leads[0]?.id)),
     [selectedId, summary.leads],
   );
+
+  useEffect(() => {
+    setReplyBody("");
+    setReplyState("idle");
+    setReplyMessage("");
+  }, [selectedLead?.id]);
+
+  async function sendReply() {
+    if (!selectedLead) return;
+    setReplyState("sending");
+    setReplyMessage("");
+    try {
+      const response = await fetch(`${getApiBase()}/admin/leads`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ leadId: selectedLead.id, body: replyBody }),
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || "Reply was not sent");
+      setReplyBody("");
+      setReplyState("sent");
+      setReplyMessage("Reply sent and saved.");
+    } catch (error) {
+      setReplyState("error");
+      setReplyMessage(error instanceof Error ? error.message : "Reply was not sent");
+    }
+  }
 
   if (state === "loading") return <LoadingPanel label="Inbox" />;
   if (state === "error") return <ErrorPanel />;
@@ -315,7 +353,7 @@ export function DashboardLiveInbox() {
                 <strong>{lead.name}</strong>
                 <small>{lead.company || lead.email || "Website enquiry"}</small>
               </span>
-              <em>{lead.status}</em>
+              <em>{lead.status}{lead.replies?.length ? ` · ${lead.replies.length}` : ""}</em>
             </button>
           ))
         ) : (
@@ -342,10 +380,39 @@ export function DashboardLiveInbox() {
               <strong>Message</strong>
               <p>{selectedLead.message}</p>
             </div>
+            {selectedLead.replies?.length ? (
+              <div className="lead-thread">
+                <strong>Replies sent from dashboard</strong>
+                {selectedLead.replies.map((reply) => (
+                  <div className="lead-reply" key={reply.id}>
+                    <p>{reply.body}</p>
+                    <small>Sent to {reply.sent_to_email || selectedLead.email} · {formatDate(reply.created_at)}</small>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+            <label className="owner-field inbox-compose">
+              <span>Reply message</span>
+              <textarea
+                value={replyBody}
+                onChange={(event) => setReplyBody(event.target.value)}
+                placeholder={selectedLead.email ? "Type your reply to the customer..." : "Customer email is missing."}
+                disabled={!selectedLead.email || replyState === "sending"}
+              />
+            </label>
             <div className="owner-actions">
-              {selectedLead.email ? <a href={`mailto:${selectedLead.email}`} className="owner-primary">Reply by Email</a> : null}
+              <button
+                type="button"
+                className="owner-primary"
+                onClick={sendReply}
+                disabled={!selectedLead.email || !replyBody.trim() || replyState === "sending"}
+              >
+                {replyState === "sending" ? "Sending..." : "Send Reply"}
+              </button>
+              {selectedLead.email ? <a href={`mailto:${selectedLead.email}`} className="owner-secondary">Open Email App</a> : null}
               <span className="owner-secondary">{formatDate(selectedLead.created_at)}</span>
             </div>
+            {replyMessage ? <div className={replyState === "sent" ? "owner-note" : "owner-error"}>{replyMessage}</div> : null}
           </>
         ) : (
           <div className="owner-empty large">Select a customer message.</div>

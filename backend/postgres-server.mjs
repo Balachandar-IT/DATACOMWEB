@@ -1,7 +1,14 @@
 import { createServer } from "node:http";
 import { randomUUID } from "node:crypto";
 import { withPostgres } from "./postgres.mjs";
-import { getEmailNotificationStatus, leadNotification, sendOwnerNotification, testNotification } from "../api/_email.js";
+import {
+  customerReplyNotification,
+  getEmailNotificationStatus,
+  leadNotification,
+  sendConfiguredEmail,
+  sendOwnerNotification,
+  testNotification,
+} from "../api/_email.js";
 
 const port = Number(process.env.BACKEND_PORT || 4000);
 const corsOrigin = process.env.CORS_ORIGIN || "*";
@@ -164,6 +171,24 @@ function mapEvent(event) {
   };
 }
 
+async function attachReplies(db, leads) {
+  const ids = leads.map((lead) => lead.id);
+  if (!ids.length) return leads;
+
+  const { rows } = await db.query(
+    `SELECT id, lead_id, body, sent_to_email, created_at
+     FROM lead_replies
+     WHERE lead_id = ANY($1::bigint[])
+     ORDER BY created_at ASC`,
+    [ids],
+  );
+
+  return leads.map((lead) => ({
+    ...lead,
+    replies: rows.filter((reply) => reply.lead_id === lead.id),
+  }));
+}
+
 async function analyticsSummary(response) {
   const summary = await withPostgres(async (db) => {
     const [active, today, totalEvents, deviceRows, locationRows, pageRows, activeVisitorRows, eventRows, leadRows, orderRows] =
@@ -271,6 +296,8 @@ async function analyticsSummary(response) {
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
       .slice(0, 12);
 
+    const leads = await attachReplies(db, leadRows.rows);
+
     return {
       activeNow: active.rows[0]?.count || 0,
       visitorsToday: today.rows[0]?.count || 0,
@@ -280,7 +307,7 @@ async function analyticsSummary(response) {
       topPages: pageRows.rows,
       activeVisitors: activeVisitorRows.rows,
       recentEvents: eventRows.rows.map(mapEvent),
-      leads: leadRows.rows,
+      leads,
       orders: orderRows.rows,
       notifications,
     };
@@ -333,6 +360,58 @@ async function sendTestNotification(response) {
   json(response, result.sent ? 200 : 502, { ...getEmailNotificationStatus(), test: result });
 }
 
+async function replyToLead(request, response) {
+  const payload = await readJson(request);
+  const leadId = Number(payload.leadId);
+  const body = String(payload.body || "").trim();
+  if (!Number.isInteger(leadId) || leadId <= 0) return json(response, 400, { error: "leadId is required" });
+  if (!body) return json(response, 400, { error: "Reply message is required" });
+
+  const result = await withPostgres(async (db) => {
+    const { rows } = await db.query(
+      `SELECT id, name, email
+       FROM leads
+       WHERE id = $1
+       LIMIT 1`,
+      [leadId],
+    );
+    const lead = rows[0];
+    if (!lead) return { status: 404, body: { error: "Lead not found" } };
+    if (!lead.email) return { status: 400, body: { error: "Customer email is missing" } };
+
+    const message = customerReplyNotification({ customerName: lead.name, body });
+    const email = await sendConfiguredEmail({
+      to: lead.email,
+      subject: message.subject,
+      text: message.text,
+      html: message.html,
+    });
+    if (!email.sent) return { status: 502, body: { error: email.error || "Email reply was not sent", email } };
+
+    const replyRows = await db.query(
+      `INSERT INTO lead_replies (lead_id, body, sent_to_email)
+       VALUES ($1, $2, $3)
+       RETURNING id, lead_id, body, sent_to_email, created_at`,
+      [lead.id, body, lead.email],
+    );
+    await db.query(
+      `UPDATE leads
+       SET status = 'replied', updated_at = NOW()
+       WHERE id = $1`,
+      [lead.id],
+    );
+    await db.query(
+      `INSERT INTO admin_activity (actor, action, target_type, target_id)
+       VALUES ($1, $2, $3, $4)`,
+      [process.env.DASHBOARD_USERNAME || "owner", "reply_lead", "lead", String(lead.id)],
+    );
+
+    return { status: 200, body: { reply: replyRows.rows[0], email } };
+  });
+
+  json(response, result.status, result.body);
+}
+
 const server = createServer(async (request, response) => {
   if (request.method === "OPTIONS") {
     json(response, 204, {});
@@ -350,6 +429,7 @@ const server = createServer(async (request, response) => {
     if (request.method === "GET" && url.pathname === "/orders") return await listOrders(response);
     if (request.method === "GET" && url.pathname === "/admin/notifications") return await notificationStatus(response);
     if (request.method === "POST" && url.pathname === "/admin/notifications") return await sendTestNotification(response);
+    if (request.method === "POST" && url.pathname === "/admin/leads") return await replyToLead(request, response);
     if (request.method === "GET" && url.pathname === "/analytics/summary") return await analyticsSummary(response);
     if (request.method === "POST" && url.pathname === "/analytics/events") return await createAnalyticsEvent(request, response);
 

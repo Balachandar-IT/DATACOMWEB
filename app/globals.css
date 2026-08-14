@@ -516,6 +516,28 @@
   color: #193f63;
 }
 
+.lead-thread {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.lead-reply {
+  background: #eaf4ff;
+  border-left: 3px solid #0b83f0;
+  padding: 12px;
+}
+
+.lead-reply p {
+  margin: 0 0 8px;
+  color: #003866;
+  white-space: pre-wrap;
+}
+
+.lead-reply small {
+  color: #54708c;
+}
+
 .owner-field {
   display: grid;
   gap: 8px;
@@ -528,6 +550,15 @@
   color: #003866;
   font: inherit;
   resize: vertical;
+}
+
+.inbox-compose {
+  margin-top: 10px;
+}
+
+.owner-error {
+  color: #b42318;
+  margin-top: 10px;
 }
 
 .owner-actions {

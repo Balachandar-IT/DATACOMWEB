@@ -11,6 +11,24 @@ function mapEvent(event) {
   };
 }
 
+async function attachReplies(db, leads) {
+  const ids = leads.map((lead) => lead.id);
+  if (!ids.length) return leads;
+
+  const { rows } = await db.query(
+    `SELECT id, lead_id, body, sent_to_email, created_at
+     FROM lead_replies
+     WHERE lead_id = ANY($1::bigint[])
+     ORDER BY created_at ASC`,
+    [ids],
+  );
+
+  return leads.map((lead) => ({
+    ...lead,
+    replies: rows.filter((reply) => reply.lead_id === lead.id),
+  }));
+}
+
 export default async function handler(req, res) {
   if (handleOptions(req, res)) return;
   if (req.method !== "GET") return sendJson(res, 405, { error: "Method not allowed" });
@@ -132,6 +150,8 @@ export default async function handler(req, res) {
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
         .slice(0, 12);
 
+      const leads = await attachReplies(db, leadRows.rows);
+
       return {
         activeNow: active.rows[0]?.count || 0,
         visitorsToday: today.rows[0]?.count || 0,
@@ -141,7 +161,7 @@ export default async function handler(req, res) {
         topPages: pageRows.rows,
         activeVisitors: activeVisitorRows.rows,
         recentEvents: eventRows.rows.map(mapEvent),
-        leads: leadRows.rows,
+        leads,
         orders: orderRows.rows,
         notifications,
       };

@@ -110,9 +110,22 @@ export async function sendOwnerNotification({ subject, text, html, replyTo }) {
     return { sent: false, skipped: true, provider: status.provider, missing: status.missing };
   }
 
-  const provider = getProvider();
   const to = envValue(["EMAIL_TO", "NOTIFICATION_EMAIL_TO", "CONTACT_EMAIL_TO"]);
+  return sendConfiguredEmail({ to, subject, text, html, replyTo });
+}
+
+export async function sendConfiguredEmail({ to, subject, text, html, replyTo }) {
+  const provider = getProvider();
   const from = senderAddress();
+  const missing = [];
+
+  if (!provider) missing.push("RESEND_API_KEY or ELASTIC_EMAIL_API_KEY");
+  if (!from) missing.push("EMAIL_FROM");
+  if (!to) missing.push("recipient email");
+
+  if (missing.length) {
+    return { sent: false, skipped: true, provider: providerLabel(provider), missing };
+  }
 
   try {
     if (provider === "resend") {
@@ -120,12 +133,12 @@ export async function sendOwnerNotification({ subject, text, html, replyTo }) {
     } else if (provider === "elastic-email") {
       await sendViaElasticEmail({ to, from: envValue(["EMAIL_FROM", "NOTIFICATION_EMAIL_FROM", "CONTACT_EMAIL_FROM"]), subject, text, html, replyTo });
     }
-    return { sent: true, skipped: false, provider: status.provider };
+    return { sent: true, skipped: false, provider: providerLabel(provider) };
   } catch (error) {
     return {
       sent: false,
       skipped: false,
-      provider: status.provider,
+      provider: providerLabel(provider),
       error: error instanceof Error ? error.message : "Email notification failed",
     };
   }
@@ -161,5 +174,17 @@ export function testNotification() {
     subject: "Datacom dashboard email notification test",
     text: `Email notifications are connected. Test sent at ${now}.`,
     html: `<div style="font-family:Arial,sans-serif;color:#003865"><h2>Email notifications connected</h2><p>Test sent at ${escapeHtml(now)}.</p></div>`,
+  };
+}
+
+export function customerReplyNotification({ customerName, body }) {
+  const greeting = plainValue(customerName) ? `Hi ${plainValue(customerName)},` : "Hi,";
+  const text = `${greeting}\n\n${plainValue(body)}\n\nBest regards,\nDatacom Enterprise Pte Ltd`;
+  const htmlBody = escapeHtml(body).replace(/\n/g, "<br>");
+
+  return {
+    subject: "Reply from Datacom Enterprise Pte Ltd",
+    text,
+    html: `<div style="font-family:Arial,sans-serif;color:#003865"><p>${escapeHtml(greeting)}</p><p>${htmlBody}</p><p>Best regards,<br>Datacom Enterprise Pte Ltd</p></div>`,
   };
 }
