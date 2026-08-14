@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { customerReplyNotification } from "../api/_email.js";
 
 async function render(pathname = "/") {
   const workerUrl = new URL("../dist/server/index.js", import.meta.url);
@@ -113,4 +114,14 @@ test("server-renders owner control dashboard", async () => {
   assert.match(dashboardHtml, /DASHBOARD_USERNAME/i);
   assert.doesNotMatch(dashboardHtml, /Datacom website control center/i);
   assert.doesNotMatch(dashboardHtml, /Catalog products/i);
+});
+
+test("customer reply email includes branded signature", () => {
+  const message = customerReplyNotification({ customerName: "Customer", body: "We will update you shortly." });
+
+  assert.match(message.text, /Datacom Enterprise Pte Ltd/i);
+  assert.match(message.text, /WhatsApp: \+65 8939 3191/i);
+  assert.match(message.html, /assets\/datacom-logo\.png/i);
+  assert.match(message.html, /No\. 20 Lorong 21A Geylang/i);
+  assert.match(message.html, /https:\/\/www\.datacom-sg\.com/i);
 });

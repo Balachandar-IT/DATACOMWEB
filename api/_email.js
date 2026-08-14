@@ -63,6 +63,49 @@ function senderAddress() {
   return `${name} <${from}>`;
 }
 
+function publicSiteUrl() {
+  const configured = envValue(["EMAIL_SITE_URL", "PUBLIC_SITE_URL", "NEXT_PUBLIC_SITE_URL"]);
+  if (configured) return configured.replace(/\/+$/, "");
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
+  return "https://www.datacom-sg.com";
+}
+
+function emailSignatureText() {
+  return [
+    "Best regards,",
+    "Datacom Enterprise Pte Ltd",
+    "No. 20 Lorong 21A Geylang, Datacom Enterprise Building, Singapore 388430",
+    "Tel: +65 6844 4272 | WhatsApp: +65 8939 3191",
+    "Email: info@dcom.com.sg | Website: https://www.datacom-sg.com",
+  ].join("\n");
+}
+
+function emailSignatureHtml() {
+  const siteUrl = publicSiteUrl();
+  const logoUrl = envValue(["EMAIL_SIGNATURE_IMAGE_URL"]) || `${siteUrl}/assets/datacom-logo.png`;
+
+  return `
+    <table role="presentation" cellspacing="0" cellpadding="0" style="margin-top:22px;border-top:1px solid #d8e5f5;padding-top:16px;font-family:Arial,sans-serif;color:#003865">
+      <tr>
+        <td style="padding:0 16px 0 0;vertical-align:top">
+          <img src="${escapeHtml(logoUrl)}" width="170" alt="Datacom Enterprise Pte Ltd" style="display:block;width:170px;max-width:170px;height:auto;border:0">
+        </td>
+        <td style="padding:0 0 0 16px;border-left:3px solid #0b83f0;vertical-align:top">
+          <p style="margin:0 0 6px;font-size:15px;line-height:1.35;font-weight:700;color:#003865">Datacom Enterprise Pte Ltd</p>
+          <p style="margin:0 0 5px;font-size:13px;line-height:1.45;color:#315d86">Trusted IT products, servers, storage, networking, and support.</p>
+          <p style="margin:0;font-size:13px;line-height:1.55;color:#003865">
+            No. 20 Lorong 21A Geylang, Datacom Enterprise Building, Singapore 388430<br>
+            Tel: <a href="tel:+6568444272" style="color:#0b83f0;text-decoration:none">+65 6844 4272</a> &nbsp;|&nbsp;
+            WhatsApp: <a href="https://wa.me/6589393191" style="color:#0b83f0;text-decoration:none">+65 8939 3191</a><br>
+            Email: <a href="mailto:info@dcom.com.sg" style="color:#0b83f0;text-decoration:none">info@dcom.com.sg</a> &nbsp;|&nbsp;
+            Web: <a href="${escapeHtml(siteUrl)}" style="color:#0b83f0;text-decoration:none">${escapeHtml(siteUrl.replace(/^https?:\/\//, ""))}</a>
+          </p>
+        </td>
+      </tr>
+    </table>
+  `;
+}
+
 async function sendViaResend({ to, from, subject, text, html, replyTo }) {
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -214,12 +257,12 @@ export function testNotification() {
 
 export function customerReplyNotification({ customerName, body }) {
   const greeting = plainValue(customerName) ? `Hi ${plainValue(customerName)},` : "Hi,";
-  const text = `${greeting}\n\n${plainValue(body)}\n\nBest regards,\nDatacom Enterprise Pte Ltd`;
+  const text = `${greeting}\n\n${plainValue(body)}\n\n${emailSignatureText()}`;
   const htmlBody = escapeHtml(body).replace(/\n/g, "<br>");
 
   return {
     subject: "Reply from Datacom Enterprise Pte Ltd",
     text,
-    html: `<div style="font-family:Arial,sans-serif;color:#003865"><p>${escapeHtml(greeting)}</p><p>${htmlBody}</p><p>Best regards,<br>Datacom Enterprise Pte Ltd</p></div>`,
+    html: `<div style="font-family:Arial,sans-serif;color:#003865;max-width:720px"><p style="margin:0 0 16px;line-height:1.6">${escapeHtml(greeting)}</p><p style="margin:0 0 18px;line-height:1.6">${htmlBody}</p>${emailSignatureHtml()}</div>`,
   };
 }
