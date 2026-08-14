@@ -308,16 +308,54 @@ export function DashboardTopNotifications({ onOpenInbox }: { onOpenInbox: () => 
   const { state, summary } = useDashboardSummary();
   const [openPanel, setOpenPanel] = useState<"messages" | "alerts" | null>(null);
   const [read, setRead] = useState(false);
+  const [messageVisitorId, setMessageVisitorId] = useState<string | null>(null);
+  const [topMessageText, setTopMessageText] = useState("");
+  const [topSendState, setTopSendState] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  const [topSendMessage, setTopSendMessage] = useState("");
 
   const unreadMessages = read ? 0 : summary.leads.filter((lead) => lead.status === "new" || lead.status === "open").length;
   const alertCount = read ? 0 : summary.notifications.length;
   const liveVisitors = summary.activeVisitors.slice(0, 4);
+  const messageVisitor = liveVisitors.find((visitor) => visitor.session_id === messageVisitorId) || null;
   const latestMessages = summary.leads.slice(0, 6);
   const latestAlerts = summary.notifications.slice(0, 8);
 
   function goToInbox() {
     setOpenPanel(null);
     onOpenInbox();
+  }
+
+  function openTopComposer(visitor: ActiveVisitorRow) {
+    setMessageVisitorId(visitor.session_id);
+    setTopMessageText("");
+    setTopSendState("idle");
+    setTopSendMessage("");
+  }
+
+  async function sendTopVisitorMessage() {
+    if (!messageVisitor || !topMessageText.trim()) return;
+    setTopSendState("sending");
+    setTopSendMessage("");
+    try {
+      const response = await fetch(`${getApiBase()}/admin/live-chat`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          sessionId: messageVisitor.session_id,
+          body: topMessageText,
+          pagePath: messageVisitor.page_path || "/",
+        }),
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || "Message was not sent");
+      setTopMessageText("");
+      setTopSendState("sent");
+      setTopSendMessage("Sent. Visitor chat will open on their screen.");
+    } catch (error) {
+      setTopSendState("error");
+      setTopSendMessage(error instanceof Error ? error.message : "Message was not sent");
+    }
   }
 
   return (
@@ -369,18 +407,45 @@ export function DashboardTopNotifications({ onOpenInbox }: { onOpenInbox: () => 
               <div className="owner-popover-section-title">{summary.activeNow} visitors on your site</div>
               {liveVisitors.length ? (
                 liveVisitors.map((visitor) => (
-                  <button type="button" className="owner-popover-row" key={visitor.session_id} onClick={goToInbox}>
+                  <div className="owner-popover-row live-chat-row" key={visitor.session_id}>
                     <span className="owner-popover-avatar live">{avatarLabel(visitor.session_id)}</span>
                     <span>
                       <strong>Visitor {shortSession(visitor.session_id)}</strong>
                       <small>On Page: {visitor.page_path || "/"}<br />{visitorLocation(visitor)}</small>
                     </span>
-                    <em>{timeAgo(visitor.created_at)}</em>
-                  </button>
+                    <span className="popover-live-actions">
+                      <em>{timeAgo(visitor.created_at)}</em>
+                      <button type="button" onClick={() => openTopComposer(visitor)}>Message</button>
+                    </span>
+                  </div>
                 ))
               ) : (
                 <div className="owner-popover-empty">No live visitors right now.</div>
               )}
+              {messageVisitor ? (
+                <div className="owner-popover-composer">
+                  <strong>Message Visitor {shortSession(messageVisitor.session_id)}</strong>
+                  <small>{messageVisitor.page_path || "/"} - {visitorLocation(messageVisitor)}</small>
+                  <textarea
+                    value={topMessageText}
+                    onChange={(event) => setTopMessageText(event.target.value)}
+                    placeholder="Type message..."
+                    disabled={topSendState === "sending"}
+                  />
+                  <div>
+                    <button
+                      type="button"
+                      className="owner-primary small"
+                      onClick={sendTopVisitorMessage}
+                      disabled={!topMessageText.trim() || topSendState === "sending"}
+                    >
+                      {topSendState === "sending" ? "Sending..." : "Send"}
+                    </button>
+                    <button type="button" className="owner-secondary small" onClick={() => setMessageVisitorId(null)}>Close</button>
+                  </div>
+                  {topSendMessage ? <p className={topSendState === "error" ? "owner-error" : "owner-success"}>{topSendMessage}</p> : null}
+                </div>
+              ) : null}
 
               <div className="owner-popover-section-title">All Messages</div>
               {latestMessages.length ? (
