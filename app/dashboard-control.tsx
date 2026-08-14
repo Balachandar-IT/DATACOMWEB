@@ -9,6 +9,7 @@ import {
   DashboardLiveHome,
   DashboardLiveInbox,
   DashboardLiveOrders,
+  DashboardTopNotifications,
 } from "./dashboard-live";
 import {
   aiVisibility,
@@ -993,6 +994,7 @@ export function DashboardControl() {
             <p>{current.detail}</p>
           </div>
           <div className="owner-top-actions">
+            <DashboardTopNotifications onOpenInbox={() => setActiveSection("inbox")} />
             <a href="/shop">Open Site</a>
             <button type="button">Owner Mode</button>
             <form action="/dashboard-logout" method="post">

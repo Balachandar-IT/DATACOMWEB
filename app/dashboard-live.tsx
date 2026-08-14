@@ -144,6 +144,25 @@ function visitorLocation(visitor: ActiveVisitorRow) {
   return parts.length ? parts.join(" / ") : "Unknown";
 }
 
+function timeAgo(value: string) {
+  const time = new Date(value).getTime();
+  if (!Number.isFinite(time)) return "";
+  const diff = Math.max(0, Date.now() - time);
+  const minutes = Math.floor(diff / 60000);
+  if (minutes < 1) return "now";
+  if (minutes < 60) return `${minutes} min`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} hr`;
+  return new Intl.DateTimeFormat("en-SG", { month: "short", day: "numeric" }).format(new Date(value));
+}
+
+function avatarLabel(value: string | null | undefined) {
+  const cleaned = String(value || "Visitor").trim();
+  const words = cleaned.split(/\s+/).filter(Boolean);
+  if (words.length >= 2) return `${words[0][0]}${words[1][0]}`.toUpperCase();
+  return cleaned.slice(0, 2).toUpperCase();
+}
+
 function CountBar({ item, total }: { item: CountRow; total: number }) {
   const value = total ? Math.max(4, Math.round((item.count / total) * 100)) : 0;
   return (
@@ -201,6 +220,125 @@ function ErrorPanel() {
     <article className="owner-panel owner-empty">
       Dashboard API is not connected. Check Vercel environment variables and Supabase connection.
     </article>
+  );
+}
+
+export function DashboardTopNotifications({ onOpenInbox }: { onOpenInbox: () => void }) {
+  const { state, summary } = useDashboardSummary();
+  const [openPanel, setOpenPanel] = useState<"messages" | "alerts" | null>(null);
+  const [read, setRead] = useState(false);
+
+  const unreadMessages = read ? 0 : summary.leads.filter((lead) => lead.status === "new" || lead.status === "open").length;
+  const alertCount = read ? 0 : summary.notifications.length;
+  const liveVisitors = summary.activeVisitors.slice(0, 4);
+  const latestMessages = summary.leads.slice(0, 6);
+  const latestAlerts = summary.notifications.slice(0, 8);
+
+  function goToInbox() {
+    setOpenPanel(null);
+    onOpenInbox();
+  }
+
+  return (
+    <div className="owner-notification-bar">
+      <button
+        type="button"
+        className="owner-live-pill"
+        onClick={() => setOpenPanel(openPanel === "messages" ? null : "messages")}
+        aria-label="Open live visitor and inbox preview"
+      >
+        <span className="owner-avatar-stack" aria-hidden="true">
+          <span />
+          <span />
+          <span />
+        </span>
+        <strong>{state === "ready" ? `+${summary.activeNow}` : "..."}</strong>
+      </button>
+      <button
+        type="button"
+        className={openPanel === "messages" ? "owner-icon-button active" : "owner-icon-button"}
+        onClick={() => setOpenPanel(openPanel === "messages" ? null : "messages")}
+        aria-label="Open messages"
+      >
+        <span className="owner-message-glyph" aria-hidden="true" />
+        {unreadMessages > 0 ? <em>{unreadMessages}</em> : null}
+      </button>
+      <button
+        type="button"
+        className={openPanel === "alerts" ? "owner-icon-button active" : "owner-icon-button"}
+        onClick={() => setOpenPanel(openPanel === "alerts" ? null : "alerts")}
+        aria-label="Open notifications"
+      >
+        <span className="owner-bell-glyph" aria-hidden="true" />
+        {alertCount > 0 ? <em>{alertCount}</em> : null}
+      </button>
+
+      {openPanel ? (
+        <div className="owner-notification-popover">
+          <div className="owner-popover-head">
+            <strong>{openPanel === "messages" ? "Inbox" : "Notifications"}</strong>
+            <span>
+              <button type="button" onClick={() => setRead(true)}>Mark All as Read</button>
+              <button type="button" onClick={goToInbox}>Go to Inbox</button>
+            </span>
+          </div>
+
+          {openPanel === "messages" ? (
+            <>
+              <div className="owner-popover-section-title">{summary.activeNow} visitors on your site</div>
+              {liveVisitors.length ? (
+                liveVisitors.map((visitor) => (
+                  <button type="button" className="owner-popover-row" key={visitor.session_id} onClick={goToInbox}>
+                    <span className="owner-popover-avatar live">{avatarLabel(visitor.session_id)}</span>
+                    <span>
+                      <strong>Visitor {shortSession(visitor.session_id)}</strong>
+                      <small>On Page: {visitor.page_path || "/"}<br />{visitorLocation(visitor)}</small>
+                    </span>
+                    <em>{timeAgo(visitor.created_at)}</em>
+                  </button>
+                ))
+              ) : (
+                <div className="owner-popover-empty">No live visitors right now.</div>
+              )}
+
+              <div className="owner-popover-section-title">All Messages</div>
+              {latestMessages.length ? (
+                latestMessages.map((lead) => (
+                  <button type="button" className="owner-popover-row" key={lead.id} onClick={goToInbox}>
+                    <span className="owner-popover-avatar">{avatarLabel(lead.name)}</span>
+                    <span>
+                      <strong>{lead.name}</strong>
+                      <small>{lead.company || lead.email || "Contact Form"}</small>
+                    </span>
+                    <em>{timeAgo(lead.created_at)}</em>
+                  </button>
+                ))
+              ) : (
+                <div className="owner-popover-empty">No customer messages yet.</div>
+              )}
+            </>
+          ) : (
+            <>
+              <div className="owner-popover-section-title">Latest updates</div>
+              {latestAlerts.length ? (
+                latestAlerts.map((item) => (
+                  <button type="button" className="owner-popover-row" key={item.id} onClick={goToInbox}>
+                    <span className="owner-popover-avatar alert">!</span>
+                    <span>
+                      <strong>{item.title}</strong>
+                      <small>{item.detail}</small>
+                    </span>
+                    <em>{timeAgo(item.createdAt)}</em>
+                  </button>
+                ))
+              ) : (
+                <div className="owner-popover-empty">No notifications yet.</div>
+              )}
+            </>
+          )}
+        </div>
+      ) : null}
+    </div>
   );
 }
 
