@@ -13,6 +13,10 @@ import {
 } from "./dashboard-live";
 import {
   aiVisibility,
+  migrationKeywordGroups,
+  migrationRules,
+  migrationSummary,
+  migrationUrlMap,
   securityChecks,
   seoTasks,
   seoTools,
@@ -23,6 +27,7 @@ type DashboardSection =
   | "home"
   | "ai"
   | "seo"
+  | "migration"
   | "inbox"
   | "orders"
   | "content"
@@ -35,6 +40,7 @@ const sections: Array<{ id: DashboardSection; label: string; detail: string; bad
   { id: "orders", label: "Sales", detail: "Orders and checkout requests" },
   { id: "content", label: "Catalog", detail: "Products, pages, images" },
   { id: "seo", label: "Marketing", detail: "Search, sitemap, AI visibility" },
+  { id: "migration", label: "SEO Migration", detail: "Wix URLs, redirects, keyword handover", badge: "NEW" },
   { id: "inbox", label: "Inbox", detail: "Website messages and replies", badge: "50" },
   { id: "analytics", label: "Analytics", detail: "Live users, devices, location" },
   { id: "security", label: "Settings", detail: "Access, spam, audit logs" },
@@ -528,6 +534,111 @@ function SeoView() {
           <a href="/shop">Check product internal links</a>
         </div>
       </article>
+    </section>
+  );
+}
+
+function MigrationView() {
+  return (
+    <section className="dashboard-section">
+      <div className="dashboard-grid four">
+        {migrationSummary.map((item) => (
+          <article className={`owner-metric ${item.tone}`} key={item.label}>
+            <span>{item.label}</span>
+            <strong>{item.status}</strong>
+          </article>
+        ))}
+      </div>
+
+      <article className="owner-panel migration-hero">
+        <div className="owner-panel-heading">
+          <div>
+            <span className="owner-kicker">Migration control board</span>
+            <h3>Move from Wix without mixing SEO signals</h3>
+          </div>
+          <span className="owner-chip">Testing mode</span>
+        </div>
+        <p>
+          Old Wix stays live while this site is tested on a separate domain. Final launch should happen only after
+          priority pages, 301 redirects, sitemap, analytics, and forms are checked.
+        </p>
+        <div className="migration-flow" aria-label="Migration workflow">
+          <span>Collect Wix URLs</span>
+          <span>Match new pages</span>
+          <span>Add SEO metadata</span>
+          <span>Create 301 redirects</span>
+          <span>Switch domain</span>
+          <span>Watch Search Console</span>
+        </div>
+      </article>
+
+      <article className="owner-panel">
+        <div className="owner-panel-heading">
+          <div>
+            <span className="owner-kicker">URL redirect manager</span>
+            <h3>Priority Wix URLs to protect</h3>
+          </div>
+          <span className="owner-chip">Do first</span>
+        </div>
+        <div className="owner-table migration-url-table">
+          <div className="owner-table-head">
+            <span>Old Wix URL</span>
+            <span>New site target</span>
+            <span>Keyword / rank</span>
+            <span>Action</span>
+            <span>Priority</span>
+          </div>
+          {migrationUrlMap.map((row) => (
+            <div className="owner-table-row" key={row.oldPath}>
+              <strong>{row.oldPath}</strong>
+              <span>{row.newPath}</span>
+              <span>{row.keywords}</span>
+              <span>{row.action}</span>
+              <em className={`migration-priority ${row.priority.toLowerCase()}`}>{row.priority}</em>
+            </div>
+          ))}
+        </div>
+      </article>
+
+      <div className="dashboard-grid two">
+        <article className="owner-panel">
+          <div className="owner-panel-heading">
+            <div>
+              <span className="owner-kicker">Keyword groups</span>
+              <h3>Page-1 rankings to keep safe</h3>
+            </div>
+          </div>
+          <div className="migration-keyword-list">
+            {migrationKeywordGroups.map((item) => (
+              <div className="migration-keyword-row" key={item.group}>
+                <div>
+                  <strong>{item.group}</strong>
+                  <span>{item.oldUrl}</span>
+                </div>
+                <div>
+                  <b>{item.best}</b>
+                  <span>Volume {item.volume}</span>
+                </div>
+                <p>{item.nextStep}</p>
+              </div>
+            ))}
+          </div>
+        </article>
+
+        <article className="owner-panel">
+          <div className="owner-panel-heading">
+            <div>
+              <span className="owner-kicker">Do not mix</span>
+              <h3>Pre-migration rules</h3>
+            </div>
+          </div>
+          <div className="migration-rule-list">
+            {migrationRules.map((rule) => (
+              <span key={rule}>{rule}</span>
+            ))}
+          </div>
+        </article>
+      </div>
     </section>
   );
 }
@@ -1250,6 +1361,7 @@ export function DashboardControl() {
         {activeSection === "home" ? <HomeView onSelectSection={setActiveSection} /> : null}
         {activeSection === "ai" ? <AiView /> : null}
         {activeSection === "seo" ? <SeoView /> : null}
+        {activeSection === "migration" ? <MigrationView /> : null}
         {activeSection === "inbox" ? <InboxView /> : null}
         {activeSection === "orders" ? <OrdersView /> : null}
         {activeSection === "content" ? <ContentView /> : null}
