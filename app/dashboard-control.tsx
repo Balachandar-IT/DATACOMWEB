@@ -21,6 +21,7 @@ import { shopCatalog, type ShopCatalogProduct } from "./shop-catalog";
 
 type DashboardSection =
   | "home"
+  | "ai"
   | "seo"
   | "inbox"
   | "orders"
@@ -28,15 +29,30 @@ type DashboardSection =
   | "analytics"
   | "security";
 
-const sections: Array<{ id: DashboardSection; label: string; detail: string }> = [
+const sections: Array<{ id: DashboardSection; label: string; detail: string; badge?: string }> = [
   { id: "home", label: "Home", detail: "Site status and owner next steps" },
-  { id: "seo", label: "SEO & GEO", detail: "Search, AI visibility, sitemap" },
-  { id: "inbox", label: "Inbox", detail: "Website messages and replies" },
-  { id: "orders", label: "Orders", detail: "Sales and checkout requests" },
-  { id: "content", label: "Content Control", detail: "Products, pages, images" },
+  { id: "ai", label: "AI Agents", detail: "Brand content and AI visibility", badge: "NEW" },
+  { id: "orders", label: "Sales", detail: "Orders and checkout requests" },
+  { id: "content", label: "Catalog", detail: "Products, pages, images" },
+  { id: "seo", label: "Marketing", detail: "Search, sitemap, AI visibility" },
+  { id: "inbox", label: "Inbox", detail: "Website messages and replies", badge: "50" },
   { id: "analytics", label: "Analytics", detail: "Live users, devices, location" },
-  { id: "security", label: "Security", detail: "Access, spam, audit logs" },
+  { id: "security", label: "Settings", detail: "Access, spam, audit logs" },
 ];
+
+const searchPerformanceCards = [
+  { query: "datacom enterprise pte ltd", clicks: "65", growth: "+20", position: "2.3" },
+  { query: "datacom", clicks: "190", growth: "+10", position: "9.9" },
+  { query: "datacom singapore", clicks: "20", growth: "+5", position: "5.5" },
+];
+
+const aiPlatformCards = [
+  { platform: "ChatGPT", queries: "1,060", trend: "-7%", status: "Tracked" },
+  { platform: "Perplexity", queries: "0", trend: "-100%", status: "Needs content" },
+  { platform: "Gemini", queries: "N/A", trend: "N/A", status: "Pending" },
+];
+
+const brandedContentFormats = ["Promo Video", "Instagram Post", "Business Logo", "Slide Presentation", "Event Flyer"];
 
 type EmailNotificationStatus = {
   connected: boolean;
@@ -166,14 +182,28 @@ function EmailNotificationsPanel({
   );
 }
 
-function HomeView() {
+function HomeView({ onSelectSection }: { onSelectSection: (section: DashboardSection) => void }) {
   const emailStatus = useEmailNotificationStatus();
+  const [activitySort, setActivitySort] = useState<"priority" | "date">("priority");
+  const [brandPrompt, setBrandPrompt] = useState("");
+  const [brandFormat, setBrandFormat] = useState(brandedContentFormats[0]);
+  const [generatedBrandIdea, setGeneratedBrandIdea] = useState("");
   const setupItems = [
     "Add EMAIL_TO, EMAIL_FROM, and a provider key in Vercel for instant customer query email alerts",
     "Set dashboard username, password, and auth secret in Vercel",
     "Connect payment provider for completed paid orders",
     "Connect Google Search Console API to import impressions, clicks, queries, and indexed URLs",
   ];
+  const activityItems = [
+    { label: "Performance Updates", priority: 1, date: "Today" },
+    { label: "Attention Required", priority: 2, date: "Today" },
+    { label: "General Updates", priority: 3, date: "19 days ago" },
+  ].sort((a, b) => (activitySort === "priority" ? a.priority - b.priority : a.date.localeCompare(b.date)));
+
+  function generateBrandIdea() {
+    const topic = brandPrompt.trim() || "Datacom data center and business IT services";
+    setGeneratedBrandIdea(`${brandFormat}: ${topic}. Use Datacom blue, product photography, and a direct enquiry call to action.`);
+  }
 
   return (
     <section className="dashboard-section">
@@ -193,6 +223,179 @@ function HomeView() {
 
       <DashboardLiveHome />
 
+      <article className="owner-panel activity-feed-panel">
+        <div className="activity-feed-head">
+          <div>
+            <span className="owner-kicker">Activity feed</span>
+            <h3>Your most recent updates</h3>
+          </div>
+          <div className="activity-sort" aria-label="Sort activity feed">
+            <span>Sort by</span>
+            <button
+              type="button"
+              className={activitySort === "priority" ? "active" : ""}
+              onClick={() => setActivitySort("priority")}
+            >
+              Priority
+            </button>
+            <button
+              type="button"
+              className={activitySort === "date" ? "active" : ""}
+              onClick={() => setActivitySort("date")}
+            >
+              Date
+            </button>
+          </div>
+        </div>
+
+        <div className="activity-feed-list">
+          {activityItems.map((item) => (
+            <div className="activity-divider" key={item.label}>
+              <span>{item.label}</span>
+            </div>
+          ))}
+
+          <section className="activity-card search-performance-card" aria-labelledby="search-performance-title">
+            <div className="activity-card-icon">G</div>
+            <div className="activity-card-body">
+              <div className="activity-card-top">
+                <div>
+                  <h4 id="search-performance-title">Search Performance on Google</h4>
+                  <div className="activity-pills">
+                    <span>Top Queries</span>
+                    <span>Top Pages</span>
+                  </div>
+                </div>
+                <button type="button" className="owner-link-button" onClick={() => onSelectSection("seo")}>
+                  Manage Site SEO
+                </button>
+              </div>
+              <p>Your top search queries on Google.</p>
+              <div className="query-card-grid">
+                {searchPerformanceCards.map((card) => (
+                  <div className="query-card" key={card.query}>
+                    <strong>{card.query}</strong>
+                    <div>
+                      <span>{card.clicks}</span>
+                      <span>{card.growth}</span>
+                      <span>{card.position}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="activity-card-footer">
+                <button type="button" className="owner-link-button" onClick={() => onSelectSection("seo")}>
+                  View Full Report
+                </button>
+                <span>Stats for Jul 18 - Aug 14 (28 days)</span>
+              </div>
+              <div className="activity-suggestion">
+                <div>
+                  <span>Suggested for you</span>
+                  <strong>Earn Google Ads credit</strong>
+                  <p>Connect a campaign when you are ready to promote Datacom products and services.</p>
+                </div>
+                <button type="button" className="owner-secondary small">Go to Google Ads</button>
+              </div>
+            </div>
+          </section>
+
+          <section className="activity-card ai-performance-card" aria-labelledby="ai-performance-title">
+            <div className="activity-card-icon ai">AI</div>
+            <div className="activity-card-body">
+              <div className="activity-card-top">
+                <div>
+                  <h4 id="ai-performance-title">Performance on AI platforms</h4>
+                  <p>The number of times AI bots crawled your site following a user query in the last 30 days.</p>
+                </div>
+                <button type="button" className="owner-link-button" onClick={() => onSelectSection("ai")}>
+                  Explore AI Visibility
+                </button>
+              </div>
+              <div className="owner-ai-platform-grid">
+                {aiPlatformCards.map((card) => (
+                  <div className="ai-platform-card" key={card.platform}>
+                    <strong>{card.platform}</strong>
+                    <span>{card.status}</span>
+                    <div>
+                      <small>User queries</small>
+                      <b>{card.queries}</b>
+                      <em>{card.trend}</em>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <button type="button" className="ai-score-banner" onClick={() => onSelectSection("ai")}>
+                Discover how your site is featured on ChatGPT, Perplexity, and Gemini.
+                <strong>Get Visibility Score</strong>
+              </button>
+            </div>
+          </section>
+
+          <section className="activity-card brand-studio-card" aria-labelledby="brand-studio-title">
+            <div className="activity-card-icon brand">DE</div>
+            <div className="activity-card-body">
+              <div className="activity-card-top">
+                <div>
+                  <h4 id="brand-studio-title">Create branded content for Datacom</h4>
+                  <p>Turn an idea into on-brand images, videos, social posts, and sales material.</p>
+                </div>
+                <span className="owner-status new">NEW</span>
+              </div>
+              <div className="brand-prompt-row">
+                <input
+                  value={brandPrompt}
+                  onChange={(event) => setBrandPrompt(event.target.value)}
+                  placeholder="Describe your design..."
+                />
+                <button type="button" className="owner-primary small" onClick={generateBrandIdea}>
+                  Create Design
+                </button>
+              </div>
+              <div className="brand-format-row">
+                {brandedContentFormats.map((format) => (
+                  <button
+                    type="button"
+                    className={format === brandFormat ? "active" : ""}
+                    key={format}
+                    onClick={() => setBrandFormat(format)}
+                  >
+                    {format}
+                  </button>
+                ))}
+              </div>
+              {generatedBrandIdea ? <p className="brand-output">{generatedBrandIdea}</p> : null}
+            </div>
+          </section>
+
+          <section className="activity-card ai-operations-card" aria-labelledby="ai-operations-title">
+            <div className="activity-card-icon ops">+</div>
+            <div className="activity-card-body">
+              <div className="activity-card-top">
+                <div>
+                  <h4 id="ai-operations-title">Manage your business with AI-anywhere</h4>
+                  <p>Chat-ready actions for performance insights, product updates, content drafts, and daily operations.</p>
+                </div>
+                <button type="button" className="owner-link-button" onClick={() => onSelectSection("ai")}>Get Started</button>
+              </div>
+            </div>
+          </section>
+
+          <section className="activity-card member-update-card" aria-labelledby="member-update-title">
+            <div className="activity-card-icon member">A</div>
+            <div className="activity-card-body">
+              <div className="activity-card-top">
+                <div>
+                  <h4 id="member-update-title">New Site Member</h4>
+                  <p>Admin John is now a site member.</p>
+                </div>
+                <span>19 days ago</span>
+              </div>
+            </div>
+          </section>
+        </div>
+      </article>
+
       <div className="dashboard-grid two">
         <article className="owner-panel">
           <div className="owner-panel-heading">
@@ -202,10 +405,10 @@ function HomeView() {
             </div>
           </div>
           <div className="owner-action-grid">
-            <button type="button">SEO setup</button>
-            <button type="button">Inbox setup</button>
-            <button type="button">Catalog control</button>
-            <button type="button">Security setup</button>
+            <button type="button" onClick={() => onSelectSection("seo")}>SEO setup</button>
+            <button type="button" onClick={() => onSelectSection("inbox")}>Inbox setup</button>
+            <button type="button" onClick={() => onSelectSection("content")}>Catalog control</button>
+            <button type="button" onClick={() => onSelectSection("security")}>Security setup</button>
           </div>
         </article>
 
@@ -233,21 +436,7 @@ function HomeView() {
         <EmailNotificationsPanel {...emailStatus} />
       </div>
 
-      <div className="dashboard-grid two">
-        <article className="owner-panel">
-          <div className="owner-panel-heading">
-            <div>
-              <span className="owner-kicker">Activity feed</span>
-              <h3>Recent updates</h3>
-            </div>
-          </div>
-          <div className="owner-empty">
-            No real activity records yet. Once backend logging is connected, content edits, new leads,
-            orders, SEO updates, and admin actions will appear here.
-          </div>
-        </article>
-
-        <article className="owner-panel">
+      <article className="owner-panel">
           <div className="owner-panel-heading">
             <div>
               <span className="owner-kicker">Attention required</span>
@@ -260,7 +449,6 @@ function HomeView() {
             ))}
           </div>
         </article>
-      </div>
     </section>
   );
 }
@@ -338,6 +526,52 @@ function SeoView() {
           <a href="/robots.txt">Open robots.txt</a>
           <a href="/llms.txt">Open llms.txt</a>
           <a href="/shop">Check product internal links</a>
+        </div>
+      </article>
+    </section>
+  );
+}
+
+function AiView() {
+  return (
+    <section className="dashboard-section">
+      <article className="owner-panel">
+        <div className="owner-panel-heading">
+          <div>
+            <span className="owner-kicker">AI visibility</span>
+            <h3>Search and answer engines</h3>
+          </div>
+          <span className="owner-chip">Beta</span>
+        </div>
+        <div className="owner-ai-platform-grid wide">
+          {aiPlatformCards.map((card) => (
+            <div className="ai-platform-card" key={card.platform}>
+              <strong>{card.platform}</strong>
+              <span>{card.status}</span>
+              <div>
+                <small>User queries</small>
+                <b>{card.queries}</b>
+                <em>{card.trend}</em>
+              </div>
+            </div>
+          ))}
+        </div>
+      </article>
+
+      <article className="owner-panel">
+        <div className="owner-panel-heading">
+          <div>
+            <span className="owner-kicker">AI agents</span>
+            <h3>Operational shortcuts</h3>
+          </div>
+        </div>
+        <div className="owner-check-grid">
+          <span>Draft product posts from catalog data</span>
+          <span>Summarize new inbox leads</span>
+          <span>Review slow-moving stock</span>
+          <span>Prepare SEO content briefs</span>
+          <span>Create service proposal outlines</span>
+          <span>Track AI crawler readiness</span>
         </div>
       </article>
     </section>
@@ -972,6 +1206,9 @@ export function DashboardControl() {
           <img src="/assets/datacom-logo.png" alt="Datacom Enterprise Pte Ltd" />
           <span>Owner Control</span>
         </Link>
+        <button type="button" className="owner-quick-actions" onClick={() => setActiveSection("home")}>
+          Quick Actions
+        </button>
         <nav>
           {sections.map((section) => (
             <button
@@ -980,7 +1217,10 @@ export function DashboardControl() {
               key={section.id}
               onClick={() => setActiveSection(section.id)}
             >
-              <strong>{section.label}</strong>
+              <strong>
+                {section.label}
+                {section.badge ? <em>{section.badge}</em> : null}
+              </strong>
               <span>{section.detail}</span>
             </button>
           ))}
@@ -994,6 +1234,10 @@ export function DashboardControl() {
             <p>{current.detail}</p>
           </div>
           <div className="owner-top-actions">
+            <label className="owner-dashboard-search">
+              <span className="sr-only">Search dashboard tools</span>
+              <input type="search" placeholder="Search for tools, apps, help and more..." />
+            </label>
             <DashboardTopNotifications onOpenInbox={() => setActiveSection("inbox")} />
             <a href="/shop">Open Site</a>
             <button type="button">Owner Mode</button>
@@ -1003,7 +1247,8 @@ export function DashboardControl() {
           </div>
         </header>
 
-        {activeSection === "home" ? <HomeView /> : null}
+        {activeSection === "home" ? <HomeView onSelectSection={setActiveSection} /> : null}
+        {activeSection === "ai" ? <AiView /> : null}
         {activeSection === "seo" ? <SeoView /> : null}
         {activeSection === "inbox" ? <InboxView /> : null}
         {activeSection === "orders" ? <OrdersView /> : null}
