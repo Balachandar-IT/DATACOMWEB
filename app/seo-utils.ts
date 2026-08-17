@@ -1,4 +1,5 @@
 import { shopCatalog } from "./shop-catalog";
+import { legacyCategoryPaths, legacyPagePaths, legacyPostPaths } from "./legacy-content";
 
 export const siteUrl = "https://www.datacom-sg.com";
 
@@ -17,6 +18,9 @@ export const staticSeoPaths = [
   "/return-and-refund-policy",
   "/terms-and-conditions",
   "/privacy-policy",
+  ...legacyPagePaths,
+  ...legacyCategoryPaths,
+  ...legacyPostPaths,
 ];
 
 export function absoluteUrl(path: string) {
