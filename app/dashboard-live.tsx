@@ -368,8 +368,6 @@ export function DashboardTopNotifications({ onOpenInbox }: { onOpenInbox: () => 
       >
         <span className="owner-avatar-stack" aria-hidden="true">
           <span />
-          <span />
-          <span />
         </span>
         <strong>{state === "ready" ? `+${summary.activeNow}` : "..."}</strong>
       </button>
