@@ -49,6 +49,7 @@ type ActiveVisitorRow = {
   device_type: string;
   country: string;
   region: string | null;
+  city?: string | null;
   created_at: string;
   actions: number;
   latest_chat_author?: "owner" | "visitor" | null;
@@ -144,8 +145,30 @@ function shortSession(value: string) {
 }
 
 function visitorLocation(visitor: ActiveVisitorRow) {
-  const parts = [visitor.country, visitor.region].filter((part) => part && part !== "Unknown");
+  const parts = [visitor.city, visitor.region, visitorCountry(visitor)].filter((part) => part && part !== "Unknown");
   return parts.length ? parts.join(" / ") : "Unknown";
+}
+
+function visitorCountry(visitor: ActiveVisitorRow) {
+  const country = String(visitor.country || "").trim();
+  if (!country || country === "Unknown") return "Unknown";
+  if (/^[A-Z]{2}$/i.test(country)) {
+    try {
+      return new Intl.DisplayNames(["en"], { type: "region" }).of(country.toUpperCase()) || country.toUpperCase();
+    } catch {
+      return country.toUpperCase();
+    }
+  }
+  return country;
+}
+
+function visitorLocationParts(visitor: ActiveVisitorRow) {
+  const country = visitorCountry(visitor);
+  const area = [visitor.city, visitor.region].filter((part) => part && part !== "Unknown").join(", ");
+  return {
+    area: area || "Location unavailable",
+    country,
+  };
 }
 
 function timeAgo(value: string) {
@@ -240,7 +263,10 @@ function ActiveVisitorsPanel({ visitors }: { visitors: ActiveVisitorRow[] }) {
             <div className="owner-table-row" key={visitor.session_id}>
               <span>{shortSession(visitor.session_id)}</span>
               <span>{visitor.device_type || "Unknown"}</span>
-              <span>{visitorLocation(visitor)}</span>
+              <span className="visitor-location-block">
+                <strong>{visitorLocationParts(visitor).area}</strong>
+                <small>{visitorLocationParts(visitor).country}</small>
+              </span>
               <span>{visitor.page_path || "/"}</span>
               <span className="visitor-chat-preview">
                 {visitor.latest_chat_body ? (
@@ -410,7 +436,13 @@ export function DashboardTopNotifications({ onOpenInbox }: { onOpenInbox: () => 
                       <span className="owner-popover-avatar live">{avatarLabel(visitor.session_id)}</span>
                       <span>
                         <strong>Visitor {shortSession(visitor.session_id)}</strong>
-                        <small>On Page: {visitor.page_path || "/"}<br />{visitorLocation(visitor)}</small>
+                        <small>
+                          On Page: {visitor.page_path || "/"}
+                          <br />
+                          {visitorLocationParts(visitor).area}
+                          <br />
+                          Country: {visitorLocationParts(visitor).country}
+                        </small>
                       </span>
                       <span className="popover-live-actions">
                         <em>{timeAgo(visitor.created_at)}</em>

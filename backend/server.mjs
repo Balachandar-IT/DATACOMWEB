@@ -142,6 +142,10 @@ async function createAnalyticsEvent(request, response) {
 
   const event = await withDb(async (db) => {
     const sessionId = payload.sessionId || randomUUID();
+    const metadata = {
+      ...(payload.metadata && typeof payload.metadata === "object" ? payload.metadata : {}),
+      ...(payload.city ? { city: payload.city } : {}),
+    };
     const [result] = await db.query(
       `INSERT INTO analytics_events
         (session_id, event_name, page_path, device_type, country, region, metadata_json)
@@ -153,7 +157,7 @@ async function createAnalyticsEvent(request, response) {
         payload.deviceType || null,
         payload.country || null,
         payload.region || null,
-        payload.metadata ? JSON.stringify(payload.metadata) : null,
+        Object.keys(metadata).length ? JSON.stringify(metadata) : null,
       ],
     );
     return { id: result.insertId, sessionId };

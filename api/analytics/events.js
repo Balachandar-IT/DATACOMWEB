@@ -9,6 +9,20 @@ function getDeviceType(userAgent = "") {
   return "Unknown";
 }
 
+function firstHeader(value) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+function decodeGeoValue(value) {
+  const raw = firstHeader(value);
+  if (!raw) return null;
+  try {
+    return decodeURIComponent(String(raw).replace(/\+/g, " "));
+  } catch {
+    return String(raw);
+  }
+}
+
 export default async function handler(req, res) {
   if (handleOptions(req, res)) return;
   if (req.method !== "POST") return sendJson(res, 405, { error: "Method not allowed" });
@@ -20,9 +34,14 @@ export default async function handler(req, res) {
 
     const event = await withServerPostgres(async (db) => {
       const sessionId = payload.sessionId || randomUUID();
-      const country = payload.country || req.headers["x-vercel-ip-country"] || null;
-      const region = payload.region || req.headers["x-vercel-ip-country-region"] || null;
+      const country = payload.country || decodeGeoValue(req.headers["x-vercel-ip-country"]) || null;
+      const region = payload.region || decodeGeoValue(req.headers["x-vercel-ip-country-region"]) || null;
+      const city = payload.city || decodeGeoValue(req.headers["x-vercel-ip-city"]) || null;
       const deviceType = payload.deviceType || getDeviceType(req.headers["user-agent"]);
+      const metadata = {
+        ...(payload.metadata && typeof payload.metadata === "object" ? payload.metadata : {}),
+        ...(city ? { city } : {}),
+      };
       const { rows } = await db.query(
         `INSERT INTO analytics_events
           (session_id, event_name, page_path, device_type, country, region, metadata_json)
@@ -35,7 +54,7 @@ export default async function handler(req, res) {
           deviceType,
           country,
           region,
-          payload.metadata ? JSON.stringify(payload.metadata) : null,
+          Object.keys(metadata).length ? JSON.stringify(metadata) : null,
         ],
       );
       return { id: rows[0].id, sessionId };

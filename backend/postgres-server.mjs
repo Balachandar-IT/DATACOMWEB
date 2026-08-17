@@ -237,7 +237,9 @@ async function analyticsSummary(response) {
         db.query(
           `WITH latest_active AS (
              SELECT DISTINCT ON (session_id)
-                    session_id, event_name, page_path, device_type, country, region, created_at
+                    session_id, event_name, page_path, device_type, country, region,
+                    metadata_json ->> 'city' AS city,
+                    created_at
              FROM analytics_events
              WHERE created_at >= NOW() - INTERVAL '5 minutes'
              ORDER BY session_id, created_at DESC
@@ -266,6 +268,7 @@ async function analyticsSummary(response) {
                   COALESCE(latest_active.device_type, 'Unknown') AS device_type,
                   COALESCE(latest_active.country, 'Unknown') AS country,
                   latest_active.region,
+                  latest_active.city,
                   latest_active.created_at,
                   COALESCE(activity_counts.actions, 1) AS actions,
                   latest_messages.author AS latest_chat_author,
@@ -345,6 +348,10 @@ async function createAnalyticsEvent(request, response) {
 
   const event = await withPostgres(async (db) => {
     const sessionId = payload.sessionId || randomUUID();
+    const metadata = {
+      ...(payload.metadata && typeof payload.metadata === "object" ? payload.metadata : {}),
+      ...(payload.city ? { city: payload.city } : {}),
+    };
     const { rows } = await db.query(
       `INSERT INTO analytics_events
         (session_id, event_name, page_path, device_type, country, region, metadata_json)
@@ -357,7 +364,7 @@ async function createAnalyticsEvent(request, response) {
         payload.deviceType || null,
         payload.country || null,
         payload.region || null,
-        payload.metadata ? JSON.stringify(payload.metadata) : null,
+        Object.keys(metadata).length ? JSON.stringify(metadata) : null,
       ],
     );
     return { id: rows[0].id, sessionId };

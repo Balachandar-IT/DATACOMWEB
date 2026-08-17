@@ -1451,7 +1451,29 @@
 
 .active-visitor-table .owner-table-head,
 .active-visitor-table .owner-table-row {
-  grid-template-columns: 110px 100px 140px minmax(180px, 1fr) 190px 150px;
+  grid-template-columns: 110px 100px 180px minmax(180px, 1fr) 190px 150px;
+}
+
+.visitor-location-block {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.visitor-location-block strong {
+  color: #003866;
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.visitor-location-block small {
+  color: #607b96;
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .visitor-chat-preview {
