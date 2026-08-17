@@ -8,8 +8,8 @@ export const dynamic = "force-dynamic";
 
 function sanitizeReturnTo(value: FormDataEntryValue | null) {
   const returnTo = typeof value === "string" ? value : "/dashboard";
-  if (!returnTo.startsWith("/") || returnTo.startsWith("//")) return "/dashboard";
-  return returnTo;
+  if (returnTo === "/dashboard" || returnTo.startsWith("/dashboard?")) return returnTo;
+  return "/dashboard";
 }
 
 function redirect(request: Request, path: string, cookie?: string) {
@@ -26,7 +26,7 @@ export async function POST(request: Request) {
   const returnTo = sanitizeReturnTo(form.get("returnTo"));
 
   if (!verifyDashboardCredentials(username, password)) {
-    return redirect(request, `/dashboard?auth=invalid&returnTo=${encodeURIComponent(returnTo)}`);
+    return redirect(request, `/owner-login?auth=invalid&returnTo=${encodeURIComponent(returnTo)}`);
   }
 
   const session = await createDashboardSession(username);

@@ -7,7 +7,7 @@ export function POST(request: Request) {
   return new Response(null, {
     status: 303,
     headers: {
-      location: new URL("/dashboard", request.url).toString(),
+      location: new URL("/owner-login", request.url).toString(),
       "set-cookie": `${dashboardCookieName}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${secure}`,
     },
   });
