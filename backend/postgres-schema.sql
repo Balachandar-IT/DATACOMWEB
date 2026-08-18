@@ -201,3 +201,9 @@ CREATE TABLE IF NOT EXISTS admin_activity (
 
 CREATE INDEX IF NOT EXISTS admin_activity_created_at_index ON admin_activity (created_at);
 CREATE INDEX IF NOT EXISTS admin_activity_action_index ON admin_activity (action);
+
+CREATE TABLE IF NOT EXISTS app_settings (
+  setting_key VARCHAR(160) PRIMARY KEY,
+  setting_value TEXT NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);

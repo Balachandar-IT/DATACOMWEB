@@ -19,6 +19,8 @@ function plainValue(value) {
   return String(value ?? "").trim();
 }
 
+const recipientSettingKey = "email_notification_recipients";
+
 function getProvider() {
   if (process.env.SMTP_HOST || process.env.SMTP_USER || process.env.SMTP_PASS) return "smtp";
   if (process.env.RESEND_API_KEY) return "resend";
@@ -33,9 +35,96 @@ function providerLabel(provider) {
   return "Not connected";
 }
 
-export function getEmailNotificationStatus() {
+function splitRecipients(value) {
+  const source = Array.isArray(value) ? value.join(",") : String(value || "");
+  const seen = new Set();
+  const recipients = [];
+  const invalid = [];
+
+  for (const item of source.split(/[,;\n]+/)) {
+    const email = item.trim();
+    if (!email) continue;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      invalid.push(email);
+      continue;
+    }
+
+    const key = email.toLowerCase();
+    if (!seen.has(key)) {
+      seen.add(key);
+      recipients.push(email);
+    }
+  }
+
+  return { recipients, invalid };
+}
+
+function envRecipients() {
+  return splitRecipients(envValue(["EMAIL_TO", "NOTIFICATION_EMAIL_TO", "CONTACT_EMAIL_TO"])).recipients;
+}
+
+function recipientHeader(value) {
+  return splitRecipients(value).recipients.join(", ");
+}
+
+async function ensureSettingsTable(db) {
+  await db.query(
+    `CREATE TABLE IF NOT EXISTS app_settings (
+       setting_key VARCHAR(160) PRIMARY KEY,
+       setting_value TEXT NOT NULL,
+       updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+     )`,
+  );
+}
+
+async function readStoredRecipients() {
+  try {
+    const { withPostgres } = await import("../backend/postgres.mjs");
+    return await withPostgres(async (db) => {
+      await ensureSettingsTable(db);
+      const { rows } = await db.query(
+        `SELECT setting_value
+         FROM app_settings
+         WHERE setting_key = $1`,
+        [recipientSettingKey],
+      );
+      return splitRecipients(rows[0]?.setting_value || "").recipients;
+    });
+  } catch {
+    return [];
+  }
+}
+
+async function ownerRecipients() {
+  const storedRecipients = await readStoredRecipients();
+  if (storedRecipients.length) return { recipients: storedRecipients, source: "dashboard" };
+  return { recipients: envRecipients(), source: "environment" };
+}
+
+export async function saveOwnerNotificationRecipients(value) {
+  const { recipients, invalid } = splitRecipients(value);
+  if (invalid.length) {
+    throw new Error(`Invalid email address: ${invalid.join(", ")}`);
+  }
+
+  const { withPostgres } = await import("../backend/postgres.mjs");
+  await withPostgres(async (db) => {
+    await ensureSettingsTable(db);
+    await db.query(
+      `INSERT INTO app_settings (setting_key, setting_value, updated_at)
+       VALUES ($1, $2, NOW())
+       ON CONFLICT (setting_key)
+       DO UPDATE SET setting_value = EXCLUDED.setting_value, updated_at = NOW()`,
+      [recipientSettingKey, recipients.join("\n")],
+    );
+  });
+
+  return recipients;
+}
+
+export async function getEmailNotificationStatus() {
   const provider = getProvider();
-  const to = envValue(["EMAIL_TO", "NOTIFICATION_EMAIL_TO", "CONTACT_EMAIL_TO"]);
+  const { recipients, source } = await ownerRecipients();
   const from = envValue(["EMAIL_FROM", "NOTIFICATION_EMAIL_FROM", "CONTACT_EMAIL_FROM"]);
   const missing = [];
 
@@ -44,14 +133,17 @@ export function getEmailNotificationStatus() {
   if (provider === "smtp" && !process.env.SMTP_PORT) missing.push("SMTP_PORT");
   if (provider === "smtp" && !process.env.SMTP_USER) missing.push("SMTP_USER");
   if (provider === "smtp" && !process.env.SMTP_PASS) missing.push("SMTP_PASS");
-  if (!to) missing.push("EMAIL_TO");
+  if (!recipients.length) missing.push("EMAIL_TO");
   if (!from) missing.push("EMAIL_FROM");
 
   return {
     connected: missing.length === 0,
     provider: providerLabel(provider),
-    toConfigured: Boolean(to),
+    toConfigured: recipients.length > 0,
     fromConfigured: Boolean(from),
+    recipients,
+    recipientCount: recipients.length,
+    recipientSource: source,
     missing,
   };
 }
@@ -107,6 +199,7 @@ function emailSignatureHtml() {
 }
 
 async function sendViaResend({ to, from, subject, text, html, replyTo }) {
+  const recipients = splitRecipients(to).recipients;
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
@@ -115,7 +208,7 @@ async function sendViaResend({ to, from, subject, text, html, replyTo }) {
     },
     body: JSON.stringify({
       from,
-      to: to.split(",").map((item) => item.trim()).filter(Boolean),
+      to: recipients,
       subject,
       text,
       html,
@@ -134,7 +227,7 @@ async function sendViaElasticEmail({ to, from, subject, text, html, replyTo }) {
     apikey: process.env.ELASTIC_EMAIL_API_KEY || "",
     from,
     fromName: envValue(["EMAIL_FROM_NAME", "NOTIFICATION_EMAIL_FROM_NAME"]) || "Datacom Enterprise Pte Ltd",
-    to,
+    to: splitRecipients(to).recipients.join(";"),
     subject,
     bodyText: text,
     bodyHtml: html,
@@ -168,7 +261,7 @@ async function sendViaSmtp({ to, from, subject, text, html, replyTo }) {
 
   await transporter.sendMail({
     from,
-    to,
+    to: recipientHeader(to),
     subject,
     text,
     html,
@@ -177,12 +270,12 @@ async function sendViaSmtp({ to, from, subject, text, html, replyTo }) {
 }
 
 export async function sendOwnerNotification({ subject, text, html, replyTo }) {
-  const status = getEmailNotificationStatus();
+  const status = await getEmailNotificationStatus();
   if (!status.connected) {
     return { sent: false, skipped: true, provider: status.provider, missing: status.missing };
   }
 
-  const to = envValue(["EMAIL_TO", "NOTIFICATION_EMAIL_TO", "CONTACT_EMAIL_TO"]);
+  const to = status.recipients.join(", ");
   return sendConfiguredEmail({ to, subject, text, html, replyTo });
 }
 

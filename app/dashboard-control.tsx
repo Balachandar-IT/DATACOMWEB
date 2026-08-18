@@ -65,6 +65,9 @@ type EmailNotificationStatus = {
   provider: string;
   toConfigured: boolean;
   fromConfigured: boolean;
+  recipients?: string[];
+  recipientCount?: number;
+  recipientSource?: "dashboard" | "environment";
   missing: string[];
   error?: string;
   test?: {
@@ -124,6 +127,34 @@ function EmailNotificationsPanel({
 }) {
   const [testState, setTestState] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [testMessage, setTestMessage] = useState("");
+  const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [saveMessage, setSaveMessage] = useState("");
+  const [recipientInput, setRecipientInput] = useState("");
+
+  useEffect(() => {
+    setRecipientInput((status?.recipients || []).join("\n"));
+  }, [status?.recipients]);
+
+  async function saveRecipients() {
+    setSaveState("saving");
+    setSaveMessage("");
+    try {
+      const response = await fetch(`${getApiBase()}/admin/notifications`, {
+        method: "PUT",
+        credentials: "include",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ recipients: recipientInput }),
+      });
+      const payload = (await response.json()) as EmailNotificationStatus;
+      setStatus(payload);
+      if (!response.ok) throw new Error(payload.error || "Recipient save failed");
+      setSaveState("saved");
+      setSaveMessage("Notification recipients saved.");
+    } catch (error) {
+      setSaveState("error");
+      setSaveMessage(error instanceof Error ? error.message : "Recipient save failed");
+    }
+  }
 
   async function sendTestEmail() {
     setTestState("sending");
@@ -139,7 +170,7 @@ function EmailNotificationsPanel({
         throw new Error(payload.error || payload.test?.error || "Test email failed");
       }
       setTestState("sent");
-      setTestMessage("Test email sent to the owner inbox.");
+      setTestMessage("Test email sent to notification recipients.");
     } catch (error) {
       setTestState("error");
       setTestMessage(error instanceof Error ? error.message : "Test email failed");
@@ -161,8 +192,17 @@ function EmailNotificationsPanel({
         </span>
       </div>
       <p className="owner-muted">
-        New contact form enquiries are saved to the dashboard and emailed to your owner inbox automatically.
+        New contact form enquiries are saved to the dashboard and emailed to the selected team inboxes automatically.
       </p>
+      <label className="owner-field notification-recipient-field">
+        <span>Notification recipient emails</span>
+        <textarea
+          value={recipientInput}
+          onChange={(event) => setRecipientInput(event.target.value)}
+          placeholder={"sales@datacom-sg.com\nsupport@datacom-sg.com"}
+        />
+        <small>{status?.recipientCount || 0} active recipient{status?.recipientCount === 1 ? "" : "s"}</small>
+      </label>
       {state === "error" ? (
         <div className="owner-empty">Login again to check email notification settings.</div>
       ) : missing.length ? (
@@ -174,14 +214,19 @@ function EmailNotificationsPanel({
       ) : (
         <div className="owner-list">
           <div className="owner-list-row"><strong>Provider</strong><span>{status?.provider}</span></div>
-          <div className="owner-list-row"><strong>Recipient</strong><span>{status?.toConfigured ? "Configured" : "Missing"}</span></div>
+          <div className="owner-list-row"><strong>Recipients</strong><span>{status?.recipientCount || 0}</span></div>
+          <div className="owner-list-row"><strong>Recipient source</strong><span>{status?.recipientSource === "dashboard" ? "Dashboard" : "Environment"}</span></div>
           <div className="owner-list-row"><strong>Sender</strong><span>{status?.fromConfigured ? "Configured" : "Missing"}</span></div>
         </div>
       )}
       <div className="owner-actions">
+        <button type="button" className="owner-secondary" onClick={saveRecipients} disabled={state === "error" || saveState === "saving"}>
+          {saveState === "saving" ? "Saving..." : "Save recipients"}
+        </button>
         <button type="button" className="owner-primary" onClick={sendTestEmail} disabled={!isConnected || testState === "sending"}>
           {testState === "sending" ? "Sending..." : "Send test email"}
         </button>
+        {saveMessage ? <span className={saveState === "saved" ? "owner-status new" : "owner-status warning"}>{saveMessage}</span> : null}
         {testMessage ? <span className={testState === "sent" ? "owner-status new" : "owner-status warning"}>{testMessage}</span> : null}
       </div>
     </article>
@@ -195,7 +240,7 @@ function HomeView({ onSelectSection }: { onSelectSection: (section: DashboardSec
   const [brandFormat, setBrandFormat] = useState(brandedContentFormats[0]);
   const [generatedBrandIdea, setGeneratedBrandIdea] = useState("");
   const setupItems = [
-    "Add EMAIL_TO, EMAIL_FROM, and a provider key in Vercel for instant customer query email alerts",
+    "Add EMAIL_FROM and one provider key in Vercel, then manage recipient emails in this dashboard",
     "Set dashboard username, password, and auth secret in Vercel",
     "Connect payment provider for completed paid orders",
     "Connect Google Search Console API to import impressions, clicks, queries, and indexed URLs",

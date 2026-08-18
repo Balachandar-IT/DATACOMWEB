@@ -373,18 +373,18 @@ async function createAnalyticsEvent(request, response) {
 }
 
 async function notificationStatus(response) {
-  json(response, 200, getEmailNotificationStatus());
+  json(response, 200, await getEmailNotificationStatus());
 }
 
 async function sendTestNotification(response) {
-  const status = getEmailNotificationStatus();
+  const status = await getEmailNotificationStatus();
   if (!status.connected) {
     json(response, 400, { ...status, error: "Email provider is not connected" });
     return;
   }
 
   const result = await sendOwnerNotification(testNotification());
-  json(response, result.sent ? 200 : 502, { ...getEmailNotificationStatus(), test: result });
+  json(response, result.sent ? 200 : 502, { ...(await getEmailNotificationStatus()), test: result });
 }
 
 async function replyToLead(request, response) {

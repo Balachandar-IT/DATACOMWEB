@@ -1440,6 +1440,14 @@
   resize: vertical;
 }
 
+.notification-recipient-field {
+  margin: 14px 0;
+}
+
+.notification-recipient-field textarea {
+  min-height: 86px;
+}
+
 .inbox-compose {
   margin-top: 10px;
 }
@@ -2099,6 +2107,30 @@
   .legacy-product-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .cookie-bar {
+    grid-template-columns: 1fr;
+  }
+
+  .cookie-actions {
+    flex-wrap: wrap;
+  }
+
+  .dell-tile-grid,
+  .dell-card-row {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .dell-split-feature,
+  .dell-mosaic,
+  .dell-server-grid,
+  .desktop-band .dell-mosaic {
+    grid-template-columns: 1fr;
+  }
+
+  .desktop-band .dell-mosaic article:last-child {
+    max-width: none;
+  }
 }
 
 @media (max-width: 640px) {
@@ -2118,6 +2150,25 @@
 
   .owner-top-actions {
     width: 100%;
+  }
+
+  .dell-tile-grid,
+  .dell-card-row {
+    grid-template-columns: 1fr;
+  }
+
+  .dell-split-feature article,
+  .dell-mosaic article,
+  .dell-server-grid article,
+  .dell-server-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .dell-split-feature img,
+  .dell-mosaic img,
+  .dell-server-grid img,
+  .dell-server-hero img {
+    justify-self: center;
   }
 
   .activity-card {
@@ -3235,16 +3286,32 @@ textarea {
   background: #000000;
   bottom: 0;
   color: #ffffff;
-  display: flex;
-  font-size: 14px;
-  gap: 28px;
-  height: 46px;
-  justify-content: space-between;
-  padding: 0 14px;
+  display: grid;
+  gap: 22px;
+  grid-template-columns: 1fr auto;
+  left: 0;
+  min-height: 78px;
+  padding: 14px 20px;
   position: fixed;
   right: 0;
-  width: 166px;
-  z-index: 30;
+  z-index: 80;
+}
+
+.cookie-bar p {
+  font-size: 14px;
+  line-height: 1.35;
+  margin: 0;
+}
+
+.cookie-bar a {
+  color: #ffffff;
+  text-decoration: underline;
+}
+
+.cookie-actions {
+  align-items: center;
+  display: flex;
+  gap: 12px;
 }
 
 .cookie-bar button {
@@ -3252,9 +3319,27 @@ textarea {
   border: 0;
   color: #ffffff;
   cursor: pointer;
-  font-size: 18px;
-  line-height: 1;
+  font: inherit;
   padding: 0;
+  text-decoration: underline;
+}
+
+.cookie-bar button:not(.close):not(:first-child) {
+  border: 1px solid #ffffff;
+  min-height: 32px;
+  padding: 0 20px;
+  text-decoration: none;
+}
+
+.cookie-bar button.accept {
+  background: #ffffff;
+  color: #1a1a1a;
+}
+
+.cookie-bar button.close {
+  font-size: 22px;
+  line-height: 1;
+  text-decoration: none;
 }
 
 .smart-chat-panel {
@@ -4048,7 +4133,7 @@ textarea {
   }
 
   .cookie-bar {
-    width: 156px;
+    width: auto;
   }
 
   .contact-form {
@@ -4159,8 +4244,8 @@ textarea {
 
   .cookie-bar {
     font-size: 12px;
-    height: 42px;
-    width: 142px;
+    height: auto;
+    width: auto;
   }
 }
 
@@ -8908,6 +8993,574 @@ section,
 
 .legacy-article ul {
   padding-left: 22px;
+}
+
+.dell-intro {
+  background: #ffffff;
+  color: #003764;
+  padding: 96px 24px 54px;
+  text-align: center;
+}
+
+.dell-intro h1 {
+  font-size: clamp(58px, 7vw, 82px);
+  font-weight: 400;
+  line-height: 1;
+  margin: 0 0 16px;
+}
+
+.dell-intro p {
+  font-size: clamp(18px, 1.7vw, 22px);
+  line-height: 1.55;
+  margin: 0 auto;
+  max-width: 960px;
+}
+
+.dell-logo-strip,
+.dell-section,
+.dell-band {
+  background: #ffffff;
+  color: #003764;
+  padding: 46px 24px;
+}
+
+.desktop-band,
+.accessories-band,
+.server-band {
+  overflow: hidden;
+  position: relative;
+}
+
+.dell-section {
+  background: #ffffff;
+  padding: 36px 0 0;
+}
+
+.dell-wordmark {
+  display: block;
+  height: auto;
+  margin-bottom: 28px;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: min(400px, 82vw);
+  width: 400px;
+}
+
+.dell-tile-grid,
+.dell-card-row {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  margin: 0 auto;
+  max-width: 1140px;
+}
+
+.dell-tile,
+.dell-showcase-card {
+  background: linear-gradient(135deg, #cfe9f0 0 52%, #78a8d0 53% 100%);
+  color: #003764;
+  display: grid;
+  min-height: 232px;
+  overflow: hidden;
+  padding: 14px;
+  text-align: center;
+  text-decoration: none;
+}
+
+.dell-tile img,
+.dell-showcase-card img {
+  align-self: end;
+  height: 132px;
+  justify-self: center;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+.dell-tile strong,
+.dell-showcase-card strong {
+  align-self: end;
+  font-size: clamp(22px, 2.1vw, 30px);
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.dell-tile span {
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.dell-section h2,
+.dell-band h2 {
+  color: #82beff;
+  font-size: clamp(42px, 4.3vw, 55px);
+  font-weight: 400;
+  line-height: 1.2;
+  margin: 0 auto 32px;
+  text-align: center;
+}
+
+.dell-section h2 {
+  margin-bottom: 26px;
+  padding: 0 24px;
+  white-space: nowrap;
+}
+
+.monitor-band h2,
+.desktop-band h2,
+.accessories-band h2,
+.server-band h2 {
+  background: #ffffff;
+  margin-left: -24px;
+  margin-right: -24px;
+  margin-top: -46px;
+  max-width: none;
+  padding: 46px 24px 32px;
+  width: calc(100% + 48px);
+}
+
+.dell-band > p {
+  color: #ffffff;
+  font-size: clamp(24px, 3vw, 34px);
+  font-weight: 900;
+  line-height: 1.25;
+  margin: 0 auto 30px;
+  max-width: 860px;
+  text-align: center;
+}
+
+.dell-split-feature,
+.dell-mosaic,
+.dell-server-grid {
+  display: grid;
+  gap: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0 auto;
+  max-width: 1180px;
+}
+
+.dell-split-feature {
+  max-width: 1145px;
+}
+
+.dell-video-panel {
+  overflow: hidden;
+  padding: 14px max(0px, calc((100vw - 1145px) / 2)) 0;
+  position: relative;
+}
+
+.dell-video-bg {
+  height: 100%;
+  inset: 0;
+  object-fit: cover;
+  pointer-events: none;
+  position: absolute;
+  width: 100%;
+  z-index: 0;
+}
+
+.dell-video-panel::after,
+.dell-band::after {
+  background: rgba(255, 255, 255, 0.28);
+  content: "";
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+  z-index: 0;
+}
+
+.dell-video-panel > .dell-split-feature,
+.dell-band > :not(.dell-video-bg) {
+  position: relative;
+  z-index: 1;
+}
+
+.dell-split-feature article,
+.dell-mosaic article,
+.dell-server-grid article,
+.dell-server-hero {
+  align-items: center;
+  background: #aecaef;
+  color: #003764;
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 1fr 1fr;
+  min-height: 255px;
+  padding: 24px;
+}
+
+.dell-split-feature article {
+  box-shadow: none;
+  display: block;
+  height: 305px;
+  min-height: 0;
+  overflow: hidden;
+  padding: 0;
+  position: relative;
+}
+
+.dell-split-feature article:first-child {
+  background:
+    linear-gradient(150deg, #78bdff 0 54.5%, #f8fbff 54.7% 67.5%, rgba(255, 255, 255, 0.92) 67.7% 100%);
+}
+
+.dell-split-feature article:nth-child(2) {
+  background:
+    linear-gradient(150deg, #292929 0 39%, #ffffff 39.2% 62%, rgba(255, 255, 255, 0.92) 62.2% 100%);
+}
+
+.dell-split-feature article > span,
+.dell-split-feature article > h3 {
+  position: absolute;
+  z-index: 2;
+}
+
+.dell-split-feature article > span {
+  left: 20px;
+  top: 12px;
+}
+
+.dell-split-feature article > h3 {
+  font-size: 30px;
+  left: 106px;
+  margin: 0;
+  max-width: 320px;
+  top: 49px;
+  width: 320px;
+}
+
+.dell-split-feature article > img {
+  position: absolute;
+  z-index: 1;
+}
+
+.dell-split-feature article > h4 {
+  bottom: 55px;
+  left: 10px;
+  position: absolute;
+  z-index: 2;
+}
+
+.dell-split-feature article > p {
+  bottom: 8px;
+  left: 0;
+  max-width: 550px;
+  position: absolute;
+  right: 18px;
+}
+
+.dell-split-feature article > .dell-enquiry {
+  background: rgba(0, 0, 0, 0.55);
+  color: #ffffff;
+  display: inline-flex;
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.25;
+  margin: 0;
+  padding: 2px 5px;
+  position: absolute;
+  right: 8px;
+  text-decoration: none;
+  top: 201px;
+  z-index: 3;
+}
+
+.dell-split-feature article:first-child img {
+  height: auto;
+  left: 254px;
+  max-height: none;
+  top: 20px;
+  transform: none;
+  width: 319px;
+}
+
+.dell-split-feature article:first-child h4 {
+  color: #003764;
+  text-shadow: 0 1px 12px rgba(255, 255, 255, 0.75);
+}
+
+.dell-split-feature article:nth-child(2) img {
+  height: auto;
+  max-height: none;
+  right: 0;
+  top: 70px;
+  transform: none;
+  width: 281px;
+}
+
+.dell-split-feature article:nth-child(2) h3 {
+  left: 82px;
+  max-width: 290px;
+  text-align: center;
+  top: 22px;
+  width: 290px;
+}
+
+.dell-split-feature article:nth-child(2) h4 {
+  bottom: 64px;
+  color: #003764;
+  left: 66px;
+  text-shadow: 0 1px 12px rgba(255, 255, 255, 0.72);
+}
+
+.dell-split-feature article:nth-child(2) p {
+  bottom: 8px;
+  color: #003764;
+  left: 0;
+  max-width: 540px;
+  right: 28px;
+}
+
+.dell-split-feature article:nth-child(2) > .dell-enquiry {
+  right: 8px;
+}
+
+.dell-split-feature article:nth-child(odd),
+.dell-mosaic article:nth-child(odd),
+.dell-server-grid article:nth-child(odd) {
+  background: #8c8c8c;
+}
+
+.dell-split-feature article:nth-child(odd) {
+  background:
+    linear-gradient(150deg, #78bdff 0 56%, #f7fbff 56% 68%, rgba(255, 255, 255, 0.9) 68% 100%);
+}
+
+.dell-split-feature h3,
+.dell-mosaic h3,
+.dell-server-grid h3,
+.dell-server-hero h3 {
+  color: #ffffff;
+  font-size: clamp(26px, 3vw, 34px);
+  line-height: 1.22;
+  margin: 0;
+}
+
+.dell-split-feature article > h3 {
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.dell-split-feature h4,
+.dell-mosaic h4,
+.dell-server-grid h4 {
+  color: #ffffff;
+  font-size: 20px;
+  line-height: 1.25;
+  margin: 4px 0 0;
+}
+
+.dell-split-feature h4 {
+  color: #003764;
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.dell-split-feature p,
+.dell-mosaic p,
+.dell-server-grid p,
+.dell-server-hero p {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.dell-split-feature p {
+  color: #17375d;
+  font-size: 13.5px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.dell-split-feature span {
+  color: #ffffff;
+  font-size: 45px;
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+.dell-split-feature img,
+.dell-mosaic img,
+.dell-server-grid img,
+.dell-server-hero img {
+  justify-self: end;
+  max-height: 185px;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+.dell-enquiry {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  display: inline-flex;
+  font-weight: 800;
+  justify-content: center;
+  margin-top: 8px;
+  max-width: max-content;
+  padding: 6px 12px;
+  text-decoration: none;
+}
+
+.monitor-band {
+  background: #ffffff;
+  overflow: hidden;
+  position: relative;
+}
+
+.monitor-band::after {
+  background: rgba(0, 82, 150, 0.08);
+}
+
+.desktop-band,
+.accessories-band,
+.server-band {
+  background: #ffffff;
+}
+
+.desktop-band .dell-mosaic {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-bottom: 28px;
+}
+
+.desktop-band .dell-mosaic article:last-child {
+  grid-column: 1 / -1;
+  justify-self: center;
+  max-width: 580px;
+  width: 100%;
+}
+
+.dell-showcase-card {
+  min-height: 294px;
+}
+
+.dell-showcase-card:nth-child(odd) {
+  background: #373333;
+  color: #ffffff;
+}
+
+.dell-showcase-card:nth-child(even) {
+  background: #e2f0f4;
+}
+
+.dell-showcase-card .dell-enquiry {
+  align-self: end;
+  justify-self: center;
+}
+
+.dell-server-hero {
+  border-radius: 14px;
+  margin: 0 auto 40px;
+  max-width: 1180px;
+}
+
+.dell-server-grid article {
+  min-height: 245px;
+}
+
+@media (max-width: 980px) {
+  .dell-section h2 {
+    white-space: normal;
+  }
+
+  .dell-video-panel {
+    padding: 12px 16px 0;
+  }
+
+  .dell-tile-grid,
+  .dell-card-row {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .dell-split-feature,
+  .dell-mosaic,
+  .dell-server-grid,
+  .desktop-band .dell-mosaic {
+    grid-template-columns: 1fr;
+  }
+
+  .desktop-band .dell-mosaic article:last-child {
+    max-width: none;
+  }
+
+  .dell-split-feature article:first-child img {
+    left: auto;
+    right: 0;
+    width: min(319px, 50vw);
+  }
+
+  .dell-split-feature article:nth-child(2) img {
+    right: 0;
+    width: min(281px, 46vw);
+  }
+}
+
+@media (max-width: 640px) {
+  .dell-tile-grid,
+  .dell-card-row {
+    grid-template-columns: 1fr;
+  }
+
+  .dell-split-feature article,
+  .dell-mosaic article,
+  .dell-server-grid article,
+  .dell-server-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .dell-video-panel {
+    padding: 10px 12px 0;
+  }
+
+  .dell-split-feature article {
+    height: 375px;
+  }
+
+  .dell-split-feature article > span {
+    font-size: 34px;
+    left: 16px;
+    top: 14px;
+  }
+
+  .dell-split-feature article > h3,
+  .dell-split-feature article:nth-child(2) h3 {
+    font-size: 25px;
+    left: 16px;
+    max-width: calc(100% - 32px);
+    text-align: left;
+    top: 66px;
+    width: calc(100% - 32px);
+  }
+
+  .dell-split-feature article:first-child img,
+  .dell-split-feature article:nth-child(2) img {
+    left: auto;
+    right: 12px;
+    top: 132px;
+    width: min(245px, 64vw);
+  }
+
+  .dell-split-feature article > h4,
+  .dell-split-feature article:nth-child(2) h4 {
+    bottom: 84px;
+    left: 16px;
+    right: 16px;
+  }
+
+  .dell-split-feature article > p,
+  .dell-split-feature article:nth-child(2) p {
+    bottom: 20px;
+    left: 16px;
+    max-width: none;
+    right: 16px;
+  }
+
+  .dell-split-feature img,
+  .dell-mosaic img,
+  .dell-server-grid img,
+  .dell-server-hero img {
+    justify-self: center;
+  }
 }
 
 .policy-hero {

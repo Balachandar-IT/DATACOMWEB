@@ -21,9 +21,10 @@ const navItems = [
 type SimplePageShellProps = {
   active: string;
   children: React.ReactNode;
+  servicePage?: boolean;
 };
 
-export function SimplePageShell({ active, children }: SimplePageShellProps) {
+export function SimplePageShell({ active, children, servicePage = false }: SimplePageShellProps) {
   return (
     <main className="simple-route-page">
       <header className="services-header" aria-label="Datacom Enterprise header">
@@ -57,8 +58,8 @@ export function SimplePageShell({ active, children }: SimplePageShellProps) {
 
       {children}
       <SiteFooter />
-      <SmartChat />
-      <CookieSettings />
+      <SmartChat servicePage={servicePage} />
+      <CookieSettings servicePage={servicePage} />
     </main>
   );
 }
